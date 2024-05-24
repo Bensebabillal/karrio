@@ -68,7 +68,6 @@ class TestCanadaPostRating(unittest.TestCase):
             parsed_response = (
                 karrio.Rating.fetch(self.RateRequest).from_(gateway).parse()
             )
-
             self.assertEqual(lib.to_dict(parsed_response), ParsedRatingMissingArgsError)
 
 

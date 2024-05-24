@@ -5,6 +5,11 @@ import karrio.lib as lib
 import karrio.providers.morneau.error as provider_error
 import karrio.providers.morneau.utils as provider_utils
 import karrio.schemas.morneau.shipment_purchase_response as shipping
+import uuid
+
+# Generate a unique UUID to be used for ShipmentIdentifier and References
+unique_id = str(uuid.uuid4())
+
 
 
 def parse_shipment_response(
@@ -33,7 +38,7 @@ def _extract_details(
     status = load_tender_confirmation.Status
     is_accepted = load_tender_confirmation.IsAccepted
 
-    label = ""  # Placeholder: replace with actual label extraction logic if applicable
+    label = "PDF", # Placeholder: replace with actual label extraction logic if applicable
     tracking_number = freight_bill_number  # Assuming the FreightBillNumber is used as the tracking number
 
     meta = {
@@ -47,7 +52,7 @@ def _extract_details(
         tracking_number=tracking_number,
         shipment_identifier=shipment_identifier,
         label_type="PDF",
-        docs=models.Documents(label=""),
+        docs=models.Documents(label="PDF"),
         meta=meta,
     )
 
@@ -66,19 +71,21 @@ def shipment_request(
                     "Address2": payload.shipper.address_line2,
                     "PostalCode": payload.shipper.postal_code,
                     "City": payload.shipper.city,
-                    "ProvinceCode": payload.shipper.state_code
+                    "ProvinceCode": "CA_QC" #payload.shipper.state_code
                 },
                 "EmergencyContact": {
                     "FaxNumber": "",
                     "CellPhoneNumber": "",
-                    "PhoneNumber": payload.shipper.phone_number,
+                    "PhoneNumber": "3435582001",#payload.shipper.phone_number,
                     "PhoneNumberExtension": "",
                     "ContactName": payload.shipper.person_name,
                     "Email": payload.shipper.email
                 },
                 "IsInvoicee": False
             },
-            "ExpectedArrivalTimeSlot": {
+            "ExpectedArrivalTimeSlot": { # to update
+                "Between": "2024-05-23T13:05:42.7708514Z",
+                "And": "2024-06-23T13:05:42.7708514Z"
             },
             "Commodities": []
         }
@@ -96,20 +103,13 @@ def shipment_request(
                     "Address2": payload.recipient.address_line2,
                     "PostalCode": payload.recipient.postal_code,
                     "City": payload.recipient.city,
-                    "ProvinceCode": payload.recipient.state_code
-                },
-                "EmergencyContact": {
-                    "FaxNumber": "",
-                    "CellPhoneNumber": "",
-                    "PhoneNumber": payload.recipient.phone_number,
-                    "PhoneNumberExtension": "",
-                    "ContactName": payload.recipient.person_name,
-                    "Email": payload.recipient.email
+                    "ProvinceCode": "CA_QC" #payload.recipient.state_code
                 },
                 "IsInvoicee": False
             },
             "ExpectedArrivalTimeSlot": {
-
+                "Between": "2024-05-20T13:05:42.7708514Z",
+                "And": "2024-06-23T13:05:42.7708514Z"
             },
             "Commodities": [{"Code": item.title} for item in payload.parcels[0].items],
             "SpecialInstructions": "",
@@ -122,13 +122,14 @@ def shipment_request(
                         "Quantity": freight.weight,
                         "Unit": "Pound" if freight.weight_unit == "LB" else "Kilogram"
                     },
-                    "Unit": freight.packaging_type,
+                    "Unit": "Pallets", #freight.packaging_type,
                     "Quantity": 1,
                     "PurchaseOrderNumbers": []
                 }
                 for freight in payload.parcels
             ]
         }
+
     ]
 
     # Construct the LoadTender payload
@@ -141,23 +142,23 @@ def shipment_request(
         "Notes": "",
         "ShipmentIdentifier": {
             "Type": "ProBill",
-            "Number": payload.reference
+            "Number": unique_id
         },
         "References": [
             {
                 "Type": "ProBill",
-                "Value": payload.reference
+                "Value": unique_id
             }
         ],
         "ThirdPartyInvoicee": {
-            # "Name": payload.billing_address.company_name,
-            # "Address": {
-            #     "Address1": payload.billing_address.address_line1,
-            #     "Address2": payload.billing_address.address_line2,
-            #     "PostalCode": payload.billing_address.postal_code,
-            #     "City": payload.billing_address.city,
-            #     "ProvinceCode": payload.billing_address.state_code
-            # }
+            "Name": "RADIANT GLOBAL LOGISTICS (CANADA) INC.",
+            "Address": {
+                "Address1": "1280 COURTNEYPARK DR E.",
+                "Address2": "",
+                "PostalCode": "L5T1N6",
+                "City": "MISSISSAUGA",
+                "ProvinceCode": "CA_ON" # a dynamiser absolument
+            }
         }
         , "EmergencyContact": {
         },

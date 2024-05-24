@@ -3,6 +3,7 @@ import datetime
 import jstruct
 import karrio.core as core
 import karrio.lib as lib
+import datetime
 import karrio.providers.morneau.units as units
 
 
@@ -45,7 +46,7 @@ class Settings(core.Settings):
     def shipment_jwt_token(self):
         return self._retrieve_jwt_token(self.server_url, units.ServiceType.shipping_service)
 
-    def _retrieve_jwt_token(self, url: str, service: units.ServiceType) -> str:
+    def _retrieve_jwt_token_old(self, url: str, service: units.ServiceType) -> str:
         """Retrieve JWT token from the given URL."""
         cache_key = "auth_token"
         now = datetime.datetime.now()
@@ -88,3 +89,86 @@ class Settings(core.Settings):
         self.cache.set(cache_key, {"token": token, "expiry": expiry_time})
 
         return token
+
+
+    def _retrieve_jwt_token(self, url: str, service: units.ServiceType) -> str:
+        """Retrieve JWT token from the given URL."""
+        # Determine if we need production credentials for the rates service in test mode
+        use_prod_for_rates = self.test_mode and service == units.ServiceType.rates_service
+        env = 'prod' if use_prod_for_rates else ('test' if self.test_mode else 'prod')
+        cache_key = f"auth_token_{service.name}_{env}"
+        now = datetime.datetime.now()
+
+        # Check if a cached token exists and is still valid
+        cached = self.cache.get(cache_key) or {}
+        if cached and cached.get('expiry') > now:
+            return cached.get('token')
+
+        # Define credentials based on the environment and service
+        username, password = self._select_credentials(service, use_prod_for_rates)
+
+        # Define the request for obtaining a new token
+        if service == units.ServiceType.rates_service:
+            response = lib.request(
+                url=f"{url}/auth/login",
+                data=f"Username={username}&Password={password}",
+                method="POST",
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+            )
+            expires_in_seconds = 600
+        else:
+            response = lib.request(
+                url=f"{url}/api/auth/Token",
+                data=lib.to_json({"UserName": username, "Password": password}),
+                method="POST",
+                headers={"Content-Type": "application/json"},
+            )
+            expires_in_seconds = 3600
+
+        token_data = lib.to_dict(response)
+        token = token_data.get("AccessToken")
+        expiry_time = now + datetime.timedelta(seconds=expires_in_seconds)
+
+        # Cache the token and its expiry time
+        self.cache.set(cache_key, {"token": token, "expiry": expiry_time})
+        return token
+
+    def _select_credentials(self, service: units.ServiceType, use_prod_credentials: bool):
+        if use_prod_credentials:
+            return (self.username, self.password)
+        elif self.test_mode:
+            return (self.test_username, self.test_password)
+        else:
+            return (self.username, self.password)
+
+def get_time_slot(start_delta, end_delta):
+    """
+    Generates a time slot starting from 'start_delta' days from now,
+    ending 'end_delta' days from now.
+
+    Args:
+    start_delta (int): Number of days from today to start the time slot.
+    end_delta (int): Number of days from today to end the time slot.
+
+    Returns:
+    dict: A dictionary containing the formatted start and end times in ISO 8601 format.
+    """
+    # Calculate the start and end times based on the current date and time in UTC
+    now = datetime.datetime.utcnow()
+    start_time = now + datetime.timedelta(days=start_delta)
+    end_time = now + datetime.timedelta(days=end_delta)
+
+    # Format the times into ISO 8601 strings
+    start_iso = start_time.isoformat() + "Z"  # Append 'Z' to indicate UTC time
+    end_iso = end_time.isoformat() + "Z"  # Same as above
+
+    # Return the time slot information
+    return {
+        "ExpectedArrivalTimeSlot": {
+            "Between": start_iso,
+            "And": end_iso
+        }
+    }
+
+    # Example usage: Generate a time slot from 1 day in the future to 3 days in the future
+    # time_slot = get_time_slot(1, 3)

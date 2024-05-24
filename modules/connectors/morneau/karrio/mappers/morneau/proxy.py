@@ -4,11 +4,14 @@ import typing
 import karrio.api.proxy as proxy
 import karrio.lib as lib
 import karrio.mappers.morneau.settings as provider_settings
+import uuid
+
+# Generate a unique UUID to be used for FreightBillNumber
+FreightBillNumber = str(uuid.uuid4())
 
 
 class Proxy(proxy.Proxy):
     settings: provider_settings.Settings
-
     def get_rates(self, request: lib.Serializable) -> lib.Deserializable[str]:
         # Send request for quotation
         response = lib.request(
@@ -25,7 +28,7 @@ class Proxy(proxy.Proxy):
         print(response)
         return lib.Deserializable(response, lib.to_dict)
 
-    def create_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
+    def create_shipment_old(self, request: lib.Serializable) -> lib.Deserializable[str]:
         response = lib.request(
             url=f"{self.settings.server_url}/LoadTender/{self.settings.caller_id}",
             data=lib.to_json(request.serialize()),
@@ -38,8 +41,43 @@ class Proxy(proxy.Proxy):
                 "Authorization": f"Bearer {self.settings.shipment_jwt_token}"
             },
         )
-
         return lib.Deserializable(response, lib.to_dict)
+
+
+    def create_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
+        shipment_request_data = request.serialize()
+        # Send the POST request
+        response = lib.request(
+            url=f"{self.settings.server_url}/LoadTender/{self.settings.caller_id}",
+            data=lib.to_json(shipment_request_data),
+            trace=self.trace_as("json"),
+            method="POST",
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-API-VERSION": "1",
+                "Authorization": f"Bearer {self.settings.shipment_jwt_token}"
+            },
+        )
+        # Check the response
+        if response == "": # status = 202
+            # Build a simulated response from the request data
+            simulated_response = {
+                "ShipmentIdentifier": shipment_request_data.get("ShipmentIdentifier"),
+                "LoadTenderConfirmations": [
+                    {
+                        "FreightBillNumber": FreightBillNumber,  # Example, this should be extracted if available
+                        "IsAccepted": False,  # default value
+                        "Status": "New",
+                        "PurchaseOrderNumbers": [],
+                        "References": shipment_request_data.get("References"),
+                    },
+                ]
+            }
+            return  lib.Deserializable(simulated_response, lib.to_dict)
+        else:
+            raise Exception(f"Failed to create shipment: {response}, {response}")
+
 
     def cancel_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
         payload = request.serialize()

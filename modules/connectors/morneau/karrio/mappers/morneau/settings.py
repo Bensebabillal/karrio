@@ -22,3 +22,6 @@ class Settings(BaseSettings):
     metadata: dict = {}
     id: str = None
     config: dict = {}
+
+    test_username: str ="dev.imprimerieGauvin"
+    test_password: str ="SFmFLAeKpx7K3WXoeJOCDhC74Y6TrvhE"

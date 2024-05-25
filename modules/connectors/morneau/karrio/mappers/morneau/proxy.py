@@ -1,13 +1,24 @@
 """Karrio Groupe Morneau client proxy."""
 import typing
+import karrio.providers.morneau.error as provider_error
 
 import karrio.api.proxy as proxy
 import karrio.lib as lib
 import karrio.mappers.morneau.settings as provider_settings
-import uuid
+import json
+
+
+import requests  # Ensure you have this imported if lib.request is not abstracting requests
+
+from huey import RedisHuey
+from huey.contrib.djhuey import task
+
+# Initialize Huey
+huey = RedisHuey()
 
 # Generate a unique UUID to be used for FreightBillNumber
-FreightBillNumber = str(uuid.uuid4())
+FreightBillNumber = "123456"#generate_unique_id()
+print("Freinght: ", FreightBillNumber)
 
 
 class Proxy(proxy.Proxy):
@@ -24,27 +35,10 @@ class Proxy(proxy.Proxy):
                 "Content-Type": "application/json",
             },
         )
-        print(self.settings.rating_jwt_token)
         print(response)
         return lib.Deserializable(response, lib.to_dict)
 
     def create_shipment_old(self, request: lib.Serializable) -> lib.Deserializable[str]:
-        response = lib.request(
-            url=f"{self.settings.server_url}/LoadTender/{self.settings.caller_id}",
-            data=lib.to_json(request.serialize()),
-            trace=self.trace_as("json"),
-            method="POST",
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "X-API-VERSION": "1",
-                "Authorization": f"Bearer {self.settings.shipment_jwt_token}"
-            },
-        )
-        return lib.Deserializable(response, lib.to_dict)
-
-
-    def create_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
         shipment_request_data = request.serialize()
         # Send the POST request
         response = lib.request(
@@ -52,6 +46,7 @@ class Proxy(proxy.Proxy):
             data=lib.to_json(shipment_request_data),
             trace=self.trace_as("json"),
             method="POST",
+            on_error=provider_error.parse_http_response,
             headers={
                 "Content-Type": "application/json",
                 "Accept": "application/json",
@@ -61,12 +56,14 @@ class Proxy(proxy.Proxy):
         )
         # Check the response
         if response == "": # status = 202
+            poll_tender_status.schedule(args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id,  self.settings.shipment_jwt_token), delay=120)  # Planifier la première vérification pour 2 minutes plus tard
             # Build a simulated response from the request data
+
             simulated_response = {
                 "ShipmentIdentifier": shipment_request_data.get("ShipmentIdentifier"),
                 "LoadTenderConfirmations": [
                     {
-                        "FreightBillNumber": FreightBillNumber,  # Example, this should be extracted if available
+                        "FreightBillNumber": "HGJGJE",  # Example, this should be extracted if available
                         "IsAccepted": False,  # default value
                         "Status": "New",
                         "PurchaseOrderNumbers": [],
@@ -76,7 +73,61 @@ class Proxy(proxy.Proxy):
             }
             return  lib.Deserializable(simulated_response, lib.to_dict)
         else:
-            raise Exception(f"Failed to create shipment: {response}, {response}")
+            raise Exception(f"Failed to create shipment")
+
+
+
+    def create_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
+        shipment_request_data = request.serialize()
+        try:
+            # Send the POST request
+            response = lib.request(
+                url=f"{self.settings.server_url}/LoadTender/{self.settings.caller_id}",
+                data=lib.to_json(shipment_request_data),
+                trace=self.trace_as("json"),
+                method="POST",
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-API-VERSION": "1",
+                    "Authorization": f"Bearer {self.settings.shipment_jwt_token}"
+                },
+            )
+        except requests.exceptions.RequestException as e:
+            # Log error here or perform other error handling
+            print(f"HTTP Request failed: {e}")
+            raise Exception(f"HTTP Request failed: {e}")
+
+        # Check the response
+        if  response=="":  # Checking if response is empty assuming response is a Response object
+            poll_tender_status.schedule(args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token), delay=120)
+
+            # Build a simulated response from the request data
+            print("je suis arrivé à la simulation")
+            #code = shipment_request_data.get("ShipmentIdentifier")
+            #Convert the string representation of a dictionary to an actual dictionary
+
+            simulated_response = {
+                "ShipmentIdentifier": shipment_request_data.get("ShipmentIdentifier"),
+                "LoadTenderConfirmations": [
+                    {
+                        "FreightBillNumber": shipment_request_data.get("ShipmentIdentifier", {}).get("Number"),
+                        "IsAccepted": False,
+                        "Status": "New",
+                        "PurchaseOrderNumbers": [],
+                        "References": shipment_request_data.get("References"),
+                    },
+                ]
+            }
+            return lib.Deserializable(simulated_response, lib.to_dict)
+        else:
+            # Use the provider's error parsing utility to provide a detailed error
+            error_message = provider_error.parse_http_response(response)
+            print(f"Error processing the shipment request: {error_message}")
+            raise Exception(f"Failed to create shipment: {error_message}")
+
+        # Assuming a successful case handling if not empty and HTTP 200
+        return lib.Deserializable(response.json(), lib.to_dict)
 
 
     def cancel_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
@@ -89,8 +140,7 @@ class Proxy(proxy.Proxy):
                 "X-API-VERSION": "1",
                 "Authorization": f"Bearer {self.settings.shipment_jwt_token}"
             },
-            # on_error=provider_error.parse_http_response,
-
+            on_error=provider_error.parse_http_response,
         )
 
         return lib.Deserializable(response if any(response) else "{}", lib.to_dict)
@@ -121,3 +171,28 @@ class Proxy(proxy.Proxy):
                 if any(track.strip())
             ],
         )
+
+@task(retries=3, retry_delay=60)
+def poll_tender_status(tender_id, server_url, caller_id, shipment_jwt_token):
+    print("Starting polling for tender status...")
+    try:
+        response = lib.request(
+            url=f"{server_url}/LoadTender/{caller_id}/{tender_id}/status",
+            headers={"Authorization": f"Bearer {shipment_jwt_token}"},
+            method="GET"
+        )
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("IsAccepted", False):
+                print("Tender accepted!")
+            else:
+                raise ValueError("Tender not yet accepted")
+        elif response.status_code == 500:
+            print("Server error, will retry...")
+            raise Exception("Server error")  # Trigger retry
+        else:
+            print(f"Failed with status code {response.status_code}, not retrying.")
+            raise Exception("Critical error, not retrying")
+    except Exception as e:
+        print(f"Exception during request: {str(e)}")
+        raise  # Raise exception to trigger retry

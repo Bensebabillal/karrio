@@ -9,6 +9,7 @@ import karrio.providers.dhl_poland.units as provider_units
 import karrio.providers.dhl_poland.utils as provider_utils
 
 
+
 def parse_shipment_response(
     _response: lib.Deserializable[lib.Element], settings: provider_utils.Settings
 ) -> typing.Tuple[models.ShipmentDetails, typing.List[models.Message]]:

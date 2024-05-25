@@ -64,3 +64,15 @@ class CommoditiesType(lib.Enum):
     rendezvous = ["RENDEZVOUS"]
     pcamlivr = ["PCAMLIVR"]
     home = ["HOME"]
+
+
+class ConnectionConfig(lib.Enum):
+    label_type = lib.OptionEnum("label_type")
+    skip_service_filter = lib.OptionEnum("skip_service_filter")
+    shipping_options = lib.OptionEnum("shipping_options", list)
+    #shipping_services = lib.OptionEnum("shipping_services", list)
+
+
+
+
+

@@ -34,7 +34,6 @@ def _extract_details(
 ) -> models.TrackingDetails:
     # Deserialize the response into TrackersResponseType
     # data.pop('tracking_number', None)
-
     tracking_response = morneau_schema.TrackersResponseType(**data)
     order_tracking = tracking_response.OrderTracking
 

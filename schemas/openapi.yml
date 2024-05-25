@@ -682,8 +682,8 @@ paths:
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
           `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `nationex`, `purolator`, `roadie`, `royalmail`, `sendle`,
-          `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
+          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
       - in: query
         name: metadata_key
         schema:
@@ -731,8 +731,8 @@ paths:
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
           `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `nationex`, `purolator`, `roadie`, `royalmail`, `sendle`,
-          `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
+          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
         required: true
       tags:
       - Carriers
@@ -932,8 +932,8 @@ paths:
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
           `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `nationex`, `purolator`, `roadie`, `royalmail`, `sendle`,
-          `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
+          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
       - in: query
         name: created_after
         schema:
@@ -1805,6 +1805,7 @@ paths:
           - geodis
           - laposte
           - locate2u
+          - morneau
           - nationex
           - purolator
           - roadie
@@ -1894,6 +1895,7 @@ paths:
           - geodis
           - laposte
           - locate2u
+          - morneau
           - nationex
           - purolator
           - roadie
@@ -1983,6 +1985,7 @@ paths:
           - geodis
           - laposte
           - locate2u
+          - morneau
           - nationex
           - purolator
           - roadie
@@ -2163,6 +2166,7 @@ paths:
           - geodis
           - laposte
           - locate2u
+          - morneau
           - nationex
           - purolator
           - roadie
@@ -2293,6 +2297,7 @@ paths:
           - geodis
           - laposte
           - locate2u
+          - morneau
           - nationex
           - purolator
           - roadie
@@ -2424,8 +2429,8 @@ paths:
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
           `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `nationex`, `purolator`, `roadie`, `royalmail`, `sendle`,
-          `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
+          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
       - in: query
         name: created_after
         schema:
@@ -2852,8 +2857,8 @@ paths:
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
           `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `nationex`, `purolator`, `roadie`, `royalmail`, `sendle`,
-          `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
+          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
       - in: query
         name: created_after
         schema:
@@ -3000,6 +3005,7 @@ paths:
           - geodis
           - laposte
           - locate2u
+          - morneau
           - nationex
           - purolator
           - roadie
@@ -4283,6 +4289,7 @@ components:
           - geodis
           - laposte
           - locate2u
+          - morneau
           - nationex
           - purolator
           - roadie
@@ -4295,7 +4302,7 @@ components:
           - usps_international
           - zoom2u
           type: string
-          x-spec-enum-id: 1765d529f2970d04
+          x-spec-enum-id: 6a0878999fdaa356
           description: Indicates a carrier (type)
         display_name:
           type: string
@@ -9031,6 +9038,7 @@ components:
           - geodis
           - laposte
           - locate2u
+          - morneau
           - nationex
           - purolator
           - roadie
@@ -9043,7 +9051,7 @@ components:
           - usps_international
           - zoom2u
           type: string
-          x-spec-enum-id: db5a0511af909ff1
+          x-spec-enum-id: d51357a37cc03553
           description: The tracking carrier
         account_number:
           type: string
@@ -9556,6 +9564,7 @@ tags:
     | roadie | Roadie |
     | purolator | Purolator |
     | nationex | Nationex |
+    | morneau | Groupe Morneau |
     | locate2u | Locate2u |
     | laposte | La Poste |
     | geodis | GEODIS |
@@ -9813,6 +9822,11 @@ tags:
     | purolator_express_international_box_9_am | PurolatorExpressInternationalBox9AM |
     | purolator_express_international_box_10_30_am | PurolatorExpressInternationalBox10:30AM |
     | purolator_express_international_box_12_00 | PurolatorExpressInternationalBox12:00 |
+
+    ### Groupe Morneau
+    | Code         | Service Name |
+    | ------------ | ------------ |
+    | morneau_standard_service | Groupe Morneau Standard Service |
 
     ### Locate2u
     | Code         | Service Name |

@@ -7,10 +7,6 @@ import karrio.providers.morneau.utils as provider_utils
 import karrio.schemas.morneau.shipment_purchase_response as shipping
 import uuid
 
-# Generate a unique UUID to be used for ShipmentIdentifier and References
-unique_id = str(uuid.uuid4())
-
-
 
 def parse_shipment_response(
     response: lib.Deserializable[dict],
@@ -22,7 +18,6 @@ def parse_shipment_response(
     shipment = _extract_details(response_dict, settings) if "error" not in response_dict else None
 
     return shipment, errors
-
 
 def _extract_details(
     data: dict,
@@ -56,12 +51,12 @@ def _extract_details(
         meta=meta,
     )
 
-
 def shipment_request(
     payload: models.ShipmentRequest,
     settings: provider_utils.Settings,
 ) -> lib.Serializable:
     # Construct the Loads
+    code =  str(uuid.uuid4())
     loads = [
         {
             "Company": {
@@ -81,12 +76,13 @@ def shipment_request(
                     "ContactName": payload.shipper.person_name,
                     "Email": payload.shipper.email
                 },
-                "IsInvoicee": False
+                "IsInvoicee": True
             },
-            "ExpectedArrivalTimeSlot": { # to update
-                "Between": "2024-05-23T13:05:42.7708514Z",
+            "ExpectedArrivalTimeSlot": {
+             "Between": "2024-05-20T13:05:42.7708514Z",
                 "And": "2024-06-23T13:05:42.7708514Z"
-            },
+                },
+            # settings._get_time_slot, #today and tomorrow
             "Commodities": []
         }
         for parcel in payload.parcels
@@ -142,12 +138,13 @@ def shipment_request(
         "Notes": "",
         "ShipmentIdentifier": {
             "Type": "ProBill",
-            "Number": unique_id
+            "Number": code
+,
         },
         "References": [
             {
                 "Type": "ProBill",
-                "Value": unique_id
+                "Value": code
             }
         ],
         "ThirdPartyInvoicee": {
@@ -163,7 +160,8 @@ def shipment_request(
         , "EmergencyContact": {
         },
         "IsInvoicee": True
-
     }
 
     return lib.Serializable(load_tender_payload)
+
+

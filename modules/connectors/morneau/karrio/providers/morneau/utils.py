@@ -6,10 +6,12 @@ import karrio.lib as lib
 import datetime
 import karrio.providers.morneau.units as units
 
+import secrets
+import string
+
 
 class Settings(core.Settings):
     """Groupe Morneau connection settings."""
-
     username: str
     password: str
     caller_id: str
@@ -45,6 +47,14 @@ class Settings(core.Settings):
     @property
     def shipment_jwt_token(self):
         return self._retrieve_jwt_token(self.server_url, units.ServiceType.shipping_service)
+
+    @property
+    def connection_config(self) -> lib.units.Options:
+        from karrio.providers.morneau.units import ConnectionConfig
+        return lib.to_connection_config(
+            self.config or {},
+            option_type=ConnectionConfig,
+        )
 
     def _retrieve_jwt_token_old(self, url: str, service: units.ServiceType) -> str:
         """Retrieve JWT token from the given URL."""
@@ -89,7 +99,6 @@ class Settings(core.Settings):
         self.cache.set(cache_key, {"token": token, "expiry": expiry_time})
 
         return token
-
 
     def _retrieve_jwt_token(self, url: str, service: units.ServiceType) -> str:
         """Retrieve JWT token from the given URL."""
@@ -141,7 +150,19 @@ class Settings(core.Settings):
         else:
             return (self.username, self.password)
 
-def get_time_slot(start_delta, end_delta):
+    def _generate_unique_id(self,prefix="Go", length=10):
+            # Calculate the number of additional characters needed
+            num_additional_chars = length - len(prefix)
+
+            # Generate the additional random characters
+            random_chars = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(num_additional_chars))
+
+            #Combine prefix with the random characters
+            unique_id = prefix + random_chars
+            print(f"UNIQUE GENEREE {unique_id}")
+            return unique_id
+
+def _get_time_slot(start_delta=0, end_delta=1):
     """
     Generates a time slot starting from 'start_delta' days from now,
     ending 'end_delta' days from now.
@@ -164,11 +185,6 @@ def get_time_slot(start_delta, end_delta):
 
     # Return the time slot information
     return {
-        "ExpectedArrivalTimeSlot": {
             "Between": start_iso,
             "And": end_iso
-        }
     }
-
-    # Example usage: Generate a time slot from 1 day in the future to 3 days in the future
-    # time_slot = get_time_slot(1, 3)

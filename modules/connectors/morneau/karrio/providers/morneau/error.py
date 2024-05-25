@@ -63,7 +63,7 @@ def parse_http_response(response: urllib.error.HTTPError) -> dict:
 
     return lib.to_json(
         {
-            "error-code": response.code,
-            "message": response.reason,
+            #"error-code": response.code,
+            "message": response.Message,
         }
     )

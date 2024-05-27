@@ -7,18 +7,17 @@ import karrio.lib as lib
 import karrio.mappers.morneau.settings as provider_settings
 import json
 
+from threading import Thread
+from karrio.providers.morneau.shipment.polling_service import poll_tender_status
+
 
 import requests  # Ensure you have this imported if lib.request is not abstracting requests
 
-from huey import RedisHuey
-from huey.contrib.djhuey import task
+# from huey import RedisHuey
+# from huey.contrib.djhuey import task
 
-# Initialize Huey
-huey = RedisHuey()
-
-# Generate a unique UUID to be used for FreightBillNumber
-FreightBillNumber = "123456"#generate_unique_id()
-print("Freinght: ", FreightBillNumber)
+# # Initialize Huey
+# huey = RedisHuey()
 
 
 class Proxy(proxy.Proxy):
@@ -37,45 +36,6 @@ class Proxy(proxy.Proxy):
         )
         print(response)
         return lib.Deserializable(response, lib.to_dict)
-
-    def create_shipment_old(self, request: lib.Serializable) -> lib.Deserializable[str]:
-        shipment_request_data = request.serialize()
-        # Send the POST request
-        response = lib.request(
-            url=f"{self.settings.server_url}/LoadTender/{self.settings.caller_id}",
-            data=lib.to_json(shipment_request_data),
-            trace=self.trace_as("json"),
-            method="POST",
-            on_error=provider_error.parse_http_response,
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "X-API-VERSION": "1",
-                "Authorization": f"Bearer {self.settings.shipment_jwt_token}"
-            },
-        )
-        # Check the response
-        if response == "": # status = 202
-            poll_tender_status.schedule(args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id,  self.settings.shipment_jwt_token), delay=120)  # Planifier la première vérification pour 2 minutes plus tard
-            # Build a simulated response from the request data
-
-            simulated_response = {
-                "ShipmentIdentifier": shipment_request_data.get("ShipmentIdentifier"),
-                "LoadTenderConfirmations": [
-                    {
-                        "FreightBillNumber": "HGJGJE",  # Example, this should be extracted if available
-                        "IsAccepted": False,  # default value
-                        "Status": "New",
-                        "PurchaseOrderNumbers": [],
-                        "References": shipment_request_data.get("References"),
-                    },
-                ]
-            }
-            return  lib.Deserializable(simulated_response, lib.to_dict)
-        else:
-            raise Exception(f"Failed to create shipment")
-
-
 
     def create_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
         shipment_request_data = request.serialize()
@@ -100,12 +60,15 @@ class Proxy(proxy.Proxy):
 
         # Check the response
         if  response=="":  # Checking if response is empty assuming response is a Response object
-            poll_tender_status.schedule(args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token), delay=120)
+            FreightBillNumber=shipment_request_data.get("ShipmentIdentifier", {}).get("Number")
+            #poll_tender_status.schedule(args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token), delay=120)
 
-            # Build a simulated response from the request data
-            print("je suis arrivé à la simulation")
-            #code = shipment_request_data.get("ShipmentIdentifier")
-            #Convert the string representation of a dictionary to an actual dictionary
+            # Create and start a thread for polling the tender status
+            poll_thread = Thread(
+                target=poll_tender_status,
+                args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token)
+            )
+            poll_thread.start()
 
             simulated_response = {
                 "ShipmentIdentifier": shipment_request_data.get("ShipmentIdentifier"),
@@ -172,27 +135,27 @@ class Proxy(proxy.Proxy):
             ],
         )
 
-@task(retries=3, retry_delay=60)
-def poll_tender_status(tender_id, server_url, caller_id, shipment_jwt_token):
-    print("Starting polling for tender status...")
-    try:
-        response = lib.request(
-            url=f"{server_url}/LoadTender/{caller_id}/{tender_id}/status",
-            headers={"Authorization": f"Bearer {shipment_jwt_token}"},
-            method="GET"
-        )
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("IsAccepted", False):
-                print("Tender accepted!")
-            else:
-                raise ValueError("Tender not yet accepted")
-        elif response.status_code == 500:
-            print("Server error, will retry...")
-            raise Exception("Server error")  # Trigger retry
-        else:
-            print(f"Failed with status code {response.status_code}, not retrying.")
-            raise Exception("Critical error, not retrying")
-    except Exception as e:
-        print(f"Exception during request: {str(e)}")
-        raise  # Raise exception to trigger retry
+# @task(retries=3, retry_delay=60)
+# def poll_tender_status(tender_id, server_url, caller_id, shipment_jwt_token):
+#     print("Starting polling for tender status...")
+#     try:
+#         response = lib.request(
+#             url=f"{server_url}/LoadTender/{caller_id}/{tender_id}/status",
+#             headers={"Authorization": f"Bearer {shipment_jwt_token}"},
+#             method="GET"
+#         )
+#         if response.status_code == 200:
+#             data = response.json()
+#             if data.get("IsAccepted", False):
+#                 print("Tender accepted!")
+#             else:
+#                 raise ValueError("Tender not yet accepted")
+#         elif response.status_code == 500:
+#             print("Server error, will retry...")
+#             raise Exception("Server error")  # Trigger retry
+#         else:
+#             print(f"Failed with status code {response.status_code}, not retrying.")
+#             raise Exception("Critical error, not retrying")
+#     except Exception as e:
+#         print(f"Exception during request: {str(e)}")
+#         raise  # Raise exception to trigger retry

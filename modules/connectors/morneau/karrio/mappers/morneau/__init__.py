@@ -15,5 +15,10 @@ METADATA = Metadata(
     Proxy=Proxy,
     Settings=Settings,
     # Data Units
-    is_hub=False
+    is_hub=False,
+    options=units.ShippingOption,
+    services=units.ShippingService,
+    packaging_types=units.PackagingType,
+    connection_configs=units.ConnectionConfig,
+
 )

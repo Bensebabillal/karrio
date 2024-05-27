@@ -217,6 +217,30 @@ export const ConnectProviderModal: React.FC<ConnectProviderModalComponent> = ({ 
 
                 {/* Carrier specific fields BEGING */}
 
+                {field("caller_id").exists && <InputField label="Caller Id" value={payload.caller_id}
+                  name="caller_id"
+                  wrapperClass="pt-2"
+                  onChange={handleChange}
+                  className="is-small"
+                  required={field("caller_id").required}
+                />}
+
+                {field("billed_id").exists && <InputField label="Billed Id" value={payload.billed_id}
+                  name="billed_id"
+                  wrapperClass="pt-2"
+                  onChange={handleChange}
+                  className="is-small"
+                  required={field("billed_id").required}
+                />}
+
+                {field("division").exists && <InputField label="Division" value={payload.division}
+                  name="division"
+                  wrapperClass="pt-2"
+                  onChange={handleChange}
+                  className="is-small"
+                  required={field("division").required}
+                />}
+
                 {field("site_id").exists && <InputField label="Site Id" value={payload.site_id}
                   name="site_id"
                   wrapperClass="pt-2"
@@ -1128,6 +1152,8 @@ function fieldState(carrier_name: CarrierNameType, property: string) {
       [CarrierSettingsCarrierNameEnum.Usps]: [["carrier_id", true], ["username", true], ["password", true], ["mailer_id"], ["customer_registration_id"], ["logistics_manager_mailer_id"]],
       [CarrierSettingsCarrierNameEnum.UspsInternational]: [["carrier_id", true], ["username", true], ["password", true], ["mailer_id"], ["customer_registration_id"], ["logistics_manager_mailer_id"]],
       [CarrierSettingsCarrierNameEnum.Zoom2u]: [["carrier_id", true], ["api_key", true], ["account_country_code"]],
+      [CarrierSettingsCarrierNameEnum.Morneau]: [["carrier_id", true], ["username", true], ["password", true], ["billed_id", true],["caller_id", true], ["division", true]],
+
       [NoneEnum.none]: [],
     }[carrier_name] || [])
       .find(([_, ...__]) => _ === property) || []

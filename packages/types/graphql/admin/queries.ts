@@ -718,6 +718,22 @@ export const GET_SYSTEM_CONNECTIONS = gql`query GetSystemConnections {
       password
       config
     }
+    ... on MorneauSettingsType {
+      id
+      carrier_id
+      carrier_name
+      caller_id
+      billed_id
+      division
+      display_name
+      test_mode
+      active
+      metadata
+      capabilities
+      username
+      password
+      config
+    }
     ... on EasyPostSettingsType {
       id
       carrier_id

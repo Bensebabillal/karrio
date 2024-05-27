@@ -162,29 +162,29 @@ class Settings(core.Settings):
             print(f"UNIQUE GENEREE {unique_id}")
             return unique_id
 
-def _get_time_slot(start_delta=0, end_delta=1):
-    """
-    Generates a time slot starting from 'start_delta' days from now,
-    ending 'end_delta' days from now.
+    def _get_time_slot(self, start_delta=0, end_delta=1):
+        """
+        Generates a time slot starting from 'start_delta' days from now,
+        ending 'end_delta' days from now.
 
-    Args:
-    start_delta (int): Number of days from today to start the time slot.
-    end_delta (int): Number of days from today to end the time slot.
+        Args:
+        start_delta (int): Number of days from today to start the time slot.
+        end_delta (int): Number of days from today to end the time slot.
 
-    Returns:
-    dict: A dictionary containing the formatted start and end times in ISO 8601 format.
-    """
-    # Calculate the start and end times based on the current date and time in UTC
-    now = datetime.datetime.utcnow()
-    start_time = now + datetime.timedelta(days=start_delta)
-    end_time = now + datetime.timedelta(days=end_delta)
+        Returns:
+        dict: A dictionary containing the formatted start and end times in ISO 8601 format.
+        """
+        # Calculate the start and end times based on the current date and time in UTC
+        now = datetime.datetime.utcnow()
+        start_time = now + datetime.timedelta(days=start_delta)
+        end_time = now + datetime.timedelta(days=end_delta)
 
-    # Format the times into ISO 8601 strings
-    start_iso = start_time.isoformat() + "Z"  # Append 'Z' to indicate UTC time
-    end_iso = end_time.isoformat() + "Z"  # Same as above
+        # Format the times into ISO 8601 strings
+        start_iso = start_time.isoformat() + "Z"  # Append 'Z' to indicate UTC time
+        end_iso = end_time.isoformat() + "Z"  # Same as above
 
-    # Return the time slot information
-    return {
-            "Between": start_iso,
-            "And": end_iso
-    }
+        # Return the time slot information
+        return {
+                "Between": start_iso,
+                "And": end_iso
+        }

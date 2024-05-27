@@ -2035,6 +2035,22 @@ export const GET_USER_CONNECTIONS = gql`query get_user_connections {
       password
       config
     }
+    ... on MorneauSettingsType {
+      id
+      carrier_id
+      carrier_name
+      caller_id
+      billed_id
+      division
+      display_name
+      test_mode
+      active
+      metadata
+      capabilities
+      username
+      password
+      config
+    }
     ... on EasyPostSettingsType {
       id
       carrier_id

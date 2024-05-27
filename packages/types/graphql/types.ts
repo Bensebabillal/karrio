@@ -2795,6 +2795,24 @@ export interface get_user_connections_user_connections_EShipperSettingsType {
   config: any | null;
 }
 
+export interface get_user_connections_user_connections_MorneauSettingsType {
+  __typename: "MorneauSettingsType";
+  id: string;
+  carrier_id: string;
+  carrier_name: string;
+  caller_id: string | null;
+  billed_id: number | null;
+  division: string | null;
+  display_name: string;
+  test_mode: boolean;
+  active: boolean;
+  metadata: any | null;
+  capabilities: string[];
+  username: string | null;
+  password: string | null;
+  config: any | null;
+}
+
 export interface get_user_connections_user_connections_EasyPostSettingsType {
   __typename: "EasyPostSettingsType";
   id: string;
@@ -3166,7 +3184,7 @@ export interface get_user_connections_user_connections_Zoom2uSettingsType {
   api_key: string | null;
 }
 
-export type get_user_connections_user_connections = get_user_connections_user_connections_AlliedExpressSettingsType | get_user_connections_user_connections_AlliedExpressLocalSettingsType | get_user_connections_user_connections_AmazonShippingSettingsType | get_user_connections_user_connections_AramexSettingsType | get_user_connections_user_connections_AsendiaUSSettingsType | get_user_connections_user_connections_AustraliaPostSettingsType | get_user_connections_user_connections_BoxKnightSettingsType | get_user_connections_user_connections_BelgianPostSettingsType | get_user_connections_user_connections_CanadaPostSettingsType | get_user_connections_user_connections_CanparSettingsType | get_user_connections_user_connections_ChronopostSettingsType | get_user_connections_user_connections_ColissimoSettingsType | get_user_connections_user_connections_DHLParcelDESettingsType | get_user_connections_user_connections_DHLExpressSettingsType | get_user_connections_user_connections_DHLPolandSettingsType | get_user_connections_user_connections_DHLUniversalSettingsType | get_user_connections_user_connections_DicomSettingsType | get_user_connections_user_connections_DPDSettingsType | get_user_connections_user_connections_DPDHLSettingsType | get_user_connections_user_connections_EShipperSettingsType | get_user_connections_user_connections_EasyPostSettingsType | get_user_connections_user_connections_FedexSettingsType | get_user_connections_user_connections_FedexWSSettingsType | get_user_connections_user_connections_FreightcomSettingsType | get_user_connections_user_connections_GenericSettingsType | get_user_connections_user_connections_GEODISSettingsType | get_user_connections_user_connections_LaPosteSettingsType | get_user_connections_user_connections_Locate2uSettingsType | get_user_connections_user_connections_NationexSettingsType | get_user_connections_user_connections_PurolatorSettingsType | get_user_connections_user_connections_RoadieSettingsType | get_user_connections_user_connections_RoyalMailSettingsType | get_user_connections_user_connections_SendleSettingsType | get_user_connections_user_connections_TGESettingsType | get_user_connections_user_connections_TNTSettingsType | get_user_connections_user_connections_UPSSettingsType | get_user_connections_user_connections_USPSSettingsType | get_user_connections_user_connections_USPSInternationalSettingsType | get_user_connections_user_connections_Zoom2uSettingsType;
+export type get_user_connections_user_connections = get_user_connections_user_connections_AlliedExpressSettingsType | get_user_connections_user_connections_AlliedExpressLocalSettingsType | get_user_connections_user_connections_AmazonShippingSettingsType | get_user_connections_user_connections_AramexSettingsType | get_user_connections_user_connections_AsendiaUSSettingsType | get_user_connections_user_connections_AustraliaPostSettingsType | get_user_connections_user_connections_BoxKnightSettingsType | get_user_connections_user_connections_BelgianPostSettingsType | get_user_connections_user_connections_CanadaPostSettingsType | get_user_connections_user_connections_CanparSettingsType | get_user_connections_user_connections_ChronopostSettingsType | get_user_connections_user_connections_ColissimoSettingsType | get_user_connections_user_connections_DHLParcelDESettingsType | get_user_connections_user_connections_DHLExpressSettingsType | get_user_connections_user_connections_DHLPolandSettingsType | get_user_connections_user_connections_DHLUniversalSettingsType | get_user_connections_user_connections_DicomSettingsType | get_user_connections_user_connections_DPDSettingsType | get_user_connections_user_connections_DPDHLSettingsType | get_user_connections_user_connections_EShipperSettingsType | get_user_connections_user_connections_MorneauSettingsType | get_user_connections_user_connections_EasyPostSettingsType | get_user_connections_user_connections_FedexSettingsType | get_user_connections_user_connections_FedexWSSettingsType | get_user_connections_user_connections_FreightcomSettingsType | get_user_connections_user_connections_GenericSettingsType | get_user_connections_user_connections_GEODISSettingsType | get_user_connections_user_connections_LaPosteSettingsType | get_user_connections_user_connections_Locate2uSettingsType | get_user_connections_user_connections_NationexSettingsType | get_user_connections_user_connections_PurolatorSettingsType | get_user_connections_user_connections_RoadieSettingsType | get_user_connections_user_connections_RoyalMailSettingsType | get_user_connections_user_connections_SendleSettingsType | get_user_connections_user_connections_TGESettingsType | get_user_connections_user_connections_TNTSettingsType | get_user_connections_user_connections_UPSSettingsType | get_user_connections_user_connections_USPSSettingsType | get_user_connections_user_connections_USPSInternationalSettingsType | get_user_connections_user_connections_Zoom2uSettingsType;
 
 export interface get_user_connections {
   user_connections: get_user_connections_user_connections[];
@@ -5757,6 +5775,7 @@ export enum CarrierNameEnum {
   geodis = "geodis",
   laposte = "laposte",
   locate2u = "locate2u",
+  morneau = "morneau",
   nationex = "nationex",
   purolator = "purolator",
   roadie = "roadie",
@@ -5855,6 +5874,7 @@ export interface CreateCarrierConnectionMutationInput {
   geodis?: GEODISSettingsInput | null;
   laposte?: LaPosteSettingsInput | null;
   locate2u?: Locate2uSettingsInput | null;
+  morneau?: MorneauSettingsInput | null;
   nationex?: NationexSettingsInput | null;
   purolator?: PurolatorSettingsInput | null;
   roadie?: RoadieSettingsInput | null;
@@ -6250,6 +6270,19 @@ export interface Locate2uSettingsInput {
 }
 
 // null
+export interface MorneauSettingsInput {
+  active?: boolean | null;
+  config?: any | null;
+  metadata?: any | null;
+  billed_id: number;
+  caller_id: string;
+  division: string;
+  username: string;
+  password: string;
+  carrier_id: string;
+}
+
+// null
 export interface NationexSettingsInput {
   active?: boolean | null;
   config?: any | null;
@@ -6409,6 +6442,7 @@ export interface UpdateCarrierConnectionMutationInput {
   geodis?: UpdateGEODISSettingsInput | null;
   laposte?: UpdateLaPosteSettingsInput | null;
   locate2u?: UpdateLocate2uSettingsInput | null;
+  morneau?: UpdateMorneauSettingsInput | null;
   nationex?: UpdateNationexSettingsInput | null;
   purolator?: UpdatePurolatorSettingsInput | null;
   roadie?: UpdateRoadieSettingsInput | null;
@@ -6818,6 +6852,20 @@ export interface UpdateLocate2uSettingsInput {
   metadata?: any | null;
   client_id?: string | null;
   client_secret?: string | null;
+  carrier_id?: string | null;
+}
+
+// null
+export interface UpdateMorneauSettingsInput {
+  id: string;
+  active?: boolean | null;
+  config?: any | null;
+  metadata?: any | null;
+  billed_id?: number | null;
+  caller_id?: string | null;
+  division?: string | null;
+  username?: string | null;
+  password?: string | null;
   carrier_id?: string | null;
 }
 

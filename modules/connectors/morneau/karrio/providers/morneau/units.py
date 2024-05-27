@@ -5,7 +5,6 @@ import karrio.lib as lib
 class PackagingType(lib.StrEnum):
     """ Carrier specific packaging type """
     PACKAGE = "Pallet"
-
     """ Unified Packaging type mapping """
     pallet = PACKAGE
 
@@ -22,7 +21,23 @@ class ShippingOption(lib.Enum):
     """ Unified Option type mapping """
     # insurance = morneau_coverage  #  maps unified karrio option to carrier specific
 
-    pass
+class ConnectionConfig(lib.Enum):
+    label_type = lib.OptionEnum("label_type")
+    skip_service_filter = lib.OptionEnum("skip_service_filter")
+    shipping_options = lib.OptionEnum("shipping_options", list)
+    shipping_services = lib.OptionEnum("shipping_services", list)
+    commodity_types = lib.OptionEnum("commodity_types", list)
+    packaging_types = lib.OptionEnum("packaging_types", list)
+
+
+@property
+def connection_config(self) -> lib.units.Options:
+    from karrio.providers.morneau.units import ConnectionConfig
+
+    return lib.to_connection_config(
+        self.config or {},
+        option_type=ConnectionConfig,
+    )
 
 
 def shipping_options_initializer(
@@ -37,7 +52,14 @@ def shipping_options_initializer(
         options.update(package_options.content)
 
     def items_filter(key: str) -> bool:
-        return key in ShippingOption  # type: ignore
+          return key in ShippingOption  # type: ignore
+
+     # Define carrier option filter.
+    # def items_filter(key: str) -> bool:
+    #      return key in ShippingOption and key not in CUSTOM_OPTIONS  # type:ignore
+
+    # return units.ShippingOptions(
+    #      _options, ShippingOption, items_filter=items_filter)
 
     return units.ShippingOptions(options, ShippingOption, items_filter=items_filter)
 
@@ -59,20 +81,17 @@ class ServiceType(lib.Enum):
     rates_service = ["rates_service"]
 
 
-class CommoditiesType(lib.Enum):
+class CommodityType(lib.Enum):
     """ Carrier specific Commodities types """
     rendezvous = ["RENDEZVOUS"]
     pcamlivr = ["PCAMLIVR"]
     home = ["HOME"]
 
 
-class ConnectionConfig(lib.Enum):
-    label_type = lib.OptionEnum("label_type")
-    skip_service_filter = lib.OptionEnum("skip_service_filter")
-    shipping_options = lib.OptionEnum("shipping_options", list)
-    #shipping_services = lib.OptionEnum("shipping_services", list)
 
 
+CUSTOM_OPTIONS = [
+    #ShippingOption.caller_id.name,
+    #ShippingOption.division.name,
 
-
-
+]

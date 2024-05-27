@@ -7,7 +7,6 @@ import karrio.providers.morneau.utils as provider_utils
 import karrio.schemas.morneau.shipment_purchase_response as shipping
 import uuid
 
-
 def parse_shipment_response(
     response: lib.Deserializable[dict],
     settings: provider_utils.Settings,
@@ -56,7 +55,7 @@ def shipment_request(
     settings: provider_utils.Settings,
 ) -> lib.Serializable:
     # Construct the Loads
-    code =  str(uuid.uuid4())
+    code = str(uuid.uuid4())
     loads = [
         {
             "Company": {
@@ -78,11 +77,12 @@ def shipment_request(
                 },
                 "IsInvoicee": True
             },
-            "ExpectedArrivalTimeSlot": {
-             "Between": "2024-05-20T13:05:42.7708514Z",
-                "And": "2024-06-23T13:05:42.7708514Z"
-                },
-            # settings._get_time_slot, #today and tomorrow
+            "ExpectedArrivalTimeSlot": settings._get_time_slot(),
+            #  {
+            #  "Between": "2024-05-20T13:05:42.7708514Z",
+            #     "And": "2024-06-23T13:05:42.7708514Z"
+            # }
+            # , #today and tomorrow
             "Commodities": []
         }
         for parcel in payload.parcels
@@ -103,10 +103,11 @@ def shipment_request(
                 },
                 "IsInvoicee": False
             },
-            "ExpectedArrivalTimeSlot": {
-                "Between": "2024-05-20T13:05:42.7708514Z",
-                "And": "2024-06-23T13:05:42.7708514Z"
-            },
+            "ExpectedArrivalTimeSlot": settings._get_time_slot(),
+            # {
+            #     "Between": "2024-05-20T13:05:42.7708514Z",
+            #     "And": "2024-06-23T13:05:42.7708514Z"
+            # }
             "Commodities": [{"Code": item.title} for item in payload.parcels[0].items],
             "SpecialInstructions": "",
             "FloorPallets": {},

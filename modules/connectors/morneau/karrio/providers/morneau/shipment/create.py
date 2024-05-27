@@ -1,9 +1,11 @@
+import imp
 import typing
 
 import karrio.core.models as models
 import karrio.lib as lib
 import karrio.providers.morneau.error as provider_error
 import karrio.providers.morneau.utils as provider_utils
+import karrio.providers.morneau.units as provider_units
 import karrio.schemas.morneau.shipment_purchase_response as shipping
 import uuid
 
@@ -55,7 +57,11 @@ def shipment_request(
     settings: provider_utils.Settings,
 ) -> lib.Serializable:
     # Construct the Loads
-    code = str(uuid.uuid4())
+    _commodities = settings.get_selected_commodities(payload.options)
+
+    code = settings._generate_unique_id("GoL", 15)
+    print("le code est: ", code)
+    #str(uuid.uuid4())
     loads = [
         {
             "Company": {
@@ -78,12 +84,7 @@ def shipment_request(
                 "IsInvoicee": True
             },
             "ExpectedArrivalTimeSlot": settings._get_time_slot(),
-            #  {
-            #  "Between": "2024-05-20T13:05:42.7708514Z",
-            #     "And": "2024-06-23T13:05:42.7708514Z"
-            # }
-            # , #today and tomorrow
-            "Commodities": []
+            "Commodities": _commodities
         }
         for parcel in payload.parcels
     ]
@@ -104,10 +105,6 @@ def shipment_request(
                 "IsInvoicee": False
             },
             "ExpectedArrivalTimeSlot": settings._get_time_slot(),
-            # {
-            #     "Between": "2024-05-20T13:05:42.7708514Z",
-            #     "And": "2024-06-23T13:05:42.7708514Z"
-            # }
             "Commodities": [{"Code": item.title} for item in payload.parcels[0].items],
             "SpecialInstructions": "",
             "FloorPallets": {},

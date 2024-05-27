@@ -9,7 +9,7 @@ from karrio.providers.morneau.utils import Settings as BaseSettings
 class Settings(BaseSettings):
     """Groupe Morneau connection settings."""
     # required carrier specific properties
-    billed_id: int
+    billed_id: str
     caller_id: str
     division: str
     # generic properties

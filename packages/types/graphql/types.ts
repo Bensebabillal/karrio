@@ -2801,7 +2801,7 @@ export interface get_user_connections_user_connections_MorneauSettingsType {
   carrier_id: string;
   carrier_name: string;
   caller_id: string | null;
-  billed_id: number | null;
+  billed_id: string | null;
   division: string | null;
   display_name: string;
   test_mode: boolean;
@@ -6274,12 +6274,14 @@ export interface MorneauSettingsInput {
   active?: boolean | null;
   config?: any | null;
   metadata?: any | null;
-  billed_id: number;
+  billed_id: string;
   caller_id: string;
   division: string;
   username: string;
   password: string;
   carrier_id: string;
+  id: string;
+
 }
 
 // null
@@ -6861,7 +6863,7 @@ export interface UpdateMorneauSettingsInput {
   active?: boolean | null;
   config?: any | null;
   metadata?: any | null;
-  billed_id?: number | null;
+  billed_id?: string | null;
   caller_id?: string | null;
   division?: string | null;
   username?: string | null;

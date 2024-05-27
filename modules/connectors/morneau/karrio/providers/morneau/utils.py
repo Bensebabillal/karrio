@@ -8,6 +8,8 @@ import karrio.providers.morneau.units as units
 
 import secrets
 import string
+from enum import Enum
+
 
 
 class Settings(core.Settings):
@@ -150,7 +152,7 @@ class Settings(core.Settings):
         else:
             return (self.username, self.password)
 
-    def _generate_unique_id(self,prefix="Go", length=10):
+    def _generate_unique_id(self, prefix="Go", length=10):
             # Calculate the number of additional characters needed
             num_additional_chars = length - len(prefix)
 
@@ -188,3 +190,27 @@ class Settings(core.Settings):
                 "Between": start_iso,
                 "And": end_iso
         }
+
+
+
+    # Definition of a helper class to hold option details
+    class lib:
+        class OptionEnum:
+            def __init__(self, name, type_):
+                self.name = name
+                self.type = type_
+
+
+    # Function to get selected commodities based on provided options
+    def get_selected_commodities(self, option):
+        selected_commodities = []  # Initialize an empty list to hold selected commodities
+       # Iterate over each shipping option defined in ShippingOption
+        for shipping_option in units.ShippingOption:
+            # Access the value of the option which is an instance of OptionEnum
+            option_enum = shipping_option.value
+            # Check if the current option is in the provided options dictionary and its value is True
+            if option.get(shipping_option.name, False):
+                # If the option is selected, add the code from OptionEnum to the list of selected commodities
+                selected_commodities.append(option_enum.code)
+
+        return selected_commodities  # Return the list of selected commodities

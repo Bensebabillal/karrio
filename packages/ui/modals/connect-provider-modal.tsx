@@ -225,13 +225,15 @@ export const ConnectProviderModal: React.FC<ConnectProviderModalComponent> = ({ 
                   required={field("caller_id").required}
                 />}
 
-                {field("billed_id").exists && <InputField label="Billed Id" value={payload.billed_id}
+                {field("billed_id").exists && <InputField   label="Billed Id" value={payload.billed_id}
                   name="billed_id"
                   wrapperClass="pt-2"
                   onChange={handleChange}
                   className="is-small"
+                  type="number"
                   required={field("billed_id").required}
                 />}
+
 
                 {field("division").exists && <InputField label="Division" value={payload.division}
                   name="division"

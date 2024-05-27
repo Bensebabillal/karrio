@@ -14,6 +14,9 @@ def poll_tender_status(FreightBillNumber, server_url, caller_id, jwt_token):
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
+            if len(response.content) == 0:
+                print(f"Toujours pas de reponse de morneau: {response.content}")
+                continue
             status_data = response.json()
 
             # Process the status_data as needed
@@ -25,7 +28,7 @@ def poll_tender_status(FreightBillNumber, server_url, caller_id, jwt_token):
                 confirmation = load_tender_confirmations[0]
                 if confirmation.get("IsAccepted"):
                     # Perform the task if the tender is accepted
-                    print("Super")
+                    print("Ajoutons notre tache ici")
                     # Insert any other task you want to perform here
                     break
                 elif confirmation.get("Status") is not None:

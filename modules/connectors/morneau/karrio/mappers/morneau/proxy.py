@@ -1,23 +1,15 @@
 """Karrio Groupe Morneau client proxy."""
+from copyreg import constructor
 import typing
 import karrio.providers.morneau.error as provider_error
-
 import karrio.api.proxy as proxy
 import karrio.lib as lib
 import karrio.mappers.morneau.settings as provider_settings
-import json
+import requests  # Ensure you have this imported if lib.request is not abstracting requests
+
 
 from threading import Thread
 from karrio.providers.morneau.shipment.polling_service import poll_tender_status
-
-
-import requests  # Ensure you have this imported if lib.request is not abstracting requests
-
-# from huey import RedisHuey
-# from huey.contrib.djhuey import task
-
-# # Initialize Huey
-# huey = RedisHuey()
 
 
 class Proxy(proxy.Proxy):
@@ -58,8 +50,8 @@ class Proxy(proxy.Proxy):
             print(f"HTTP Request failed: {e}")
             raise Exception(f"HTTP Request failed: {e}")
 
-        # Check the response
-        if  response=="":  # Checking if response is empty assuming response is a Response object
+        # Check if the response content is empty
+        if len(response) == 0:
             FreightBillNumber=shipment_request_data.get("ShipmentIdentifier", {}).get("Number")
             #poll_tender_status.schedule(args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token), delay=120)
 
@@ -68,7 +60,7 @@ class Proxy(proxy.Proxy):
                 target=poll_tender_status,
                 args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token)
             )
-            poll_thread.start()
+           # poll_thread.start()
 
             simulated_response = {
                 "ShipmentIdentifier": shipment_request_data.get("ShipmentIdentifier"),
@@ -84,13 +76,10 @@ class Proxy(proxy.Proxy):
             }
             return lib.Deserializable(simulated_response, lib.to_dict)
         else:
-            # Use the provider's error parsing utility to provide a detailed error
-            error_message = provider_error.parse_http_response(response)
-            print(f"Error processing the shipment request: {error_message}")
-            raise Exception(f"Failed to create shipment: {error_message}")
-
-        # Assuming a successful case handling if not empty and HTTP 200
-        return lib.Deserializable(response.json(), lib.to_dict)
+            #Use the provider's error parsing utility to provide a detailed error
+            #error_message = provider_error.parse_http_response(response)
+            #print(f"Error processing the shipment request: {error_message}")
+            raise Exception(f"Failed to create shipment: {response}")
 
 
     def cancel_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
@@ -134,28 +123,3 @@ class Proxy(proxy.Proxy):
                 if any(track.strip())
             ],
         )
-
-# @task(retries=3, retry_delay=60)
-# def poll_tender_status(tender_id, server_url, caller_id, shipment_jwt_token):
-#     print("Starting polling for tender status...")
-#     try:
-#         response = lib.request(
-#             url=f"{server_url}/LoadTender/{caller_id}/{tender_id}/status",
-#             headers={"Authorization": f"Bearer {shipment_jwt_token}"},
-#             method="GET"
-#         )
-#         if response.status_code == 200:
-#             data = response.json()
-#             if data.get("IsAccepted", False):
-#                 print("Tender accepted!")
-#             else:
-#                 raise ValueError("Tender not yet accepted")
-#         elif response.status_code == 500:
-#             print("Server error, will retry...")
-#             raise Exception("Server error")  # Trigger retry
-#         else:
-#             print(f"Failed with status code {response.status_code}, not retrying.")
-#             raise Exception("Critical error, not retrying")
-#     except Exception as e:
-#         print(f"Exception during request: {str(e)}")
-#         raise  # Raise exception to trigger retry

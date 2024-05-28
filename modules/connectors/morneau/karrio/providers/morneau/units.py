@@ -31,11 +31,6 @@ class ShippingOption(lib.Enum):
     #mapping
     dangerous_good = morneau_dangerous_good# DangerousGood : dangerous goods are shipped
 
-
-
-
-
-
     """ Unified Option type mapping """
     # insurance = morneau_coverage  #  maps unified karrio option to carrier specific
 

@@ -191,16 +191,6 @@ class Settings(core.Settings):
                 "And": end_iso
         }
 
-
-
-    # Definition of a helper class to hold option details
-    class lib:
-        class OptionEnum:
-            def __init__(self, name, type_):
-                self.name = name
-                self.type = type_
-
-
     # Function to get selected commodities based on provided options
     def get_selected_commodities(self, option):
         selected_commodities = []  # Initialize an empty list to hold selected commodities
@@ -211,6 +201,6 @@ class Settings(core.Settings):
             # Check if the current option is in the provided options dictionary and its value is True
             if option.get(shipping_option.name, False):
                 # If the option is selected, add the code from OptionEnum to the list of selected commodities
-                selected_commodities.append(option_enum.code)
+                selected_commodities.append({"Code": option_enum.code})
 
         return selected_commodities  # Return the list of selected commodities

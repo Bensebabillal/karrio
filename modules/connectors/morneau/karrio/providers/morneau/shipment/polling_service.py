@@ -9,7 +9,6 @@ def poll_tender_status(FreightBillNumber, server_url, caller_id, jwt_token):
         "Accept": "application/json",
         "Authorization": f"Bearer {jwt_token}"
     }
-    print("Start polling ... ")
     while True:
         try:
             response = requests.get(url, headers=headers)

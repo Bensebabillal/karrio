@@ -1,4 +1,3 @@
-import imp
 import typing
 
 import karrio.core.models as models
@@ -7,7 +6,6 @@ import karrio.providers.morneau.error as provider_error
 import karrio.providers.morneau.utils as provider_utils
 import karrio.providers.morneau.units as provider_units
 import karrio.schemas.morneau.shipment_purchase_response as shipping
-import uuid
 
 def parse_shipment_response(
     response: lib.Deserializable[dict],
@@ -56,12 +54,9 @@ def shipment_request(
     payload: models.ShipmentRequest,
     settings: provider_utils.Settings,
 ) -> lib.Serializable:
-    # Construct the Loads
     _commodities = settings.get_selected_commodities(payload.options)
-
     code = settings._generate_unique_id("GoL", 15)
-    print("le code est: ", code)
-    #str(uuid.uuid4())
+    # Construct the Loads
     loads = [
         {
             "Company": {
@@ -71,12 +66,12 @@ def shipment_request(
                     "Address2": payload.shipper.address_line2,
                     "PostalCode": payload.shipper.postal_code,
                     "City": payload.shipper.city,
-                    "ProvinceCode": "CA_QC" #payload.shipper.state_code
+                    "ProvinceCode": f"{payload.shipper.country_code}_{payload.shipper.state_code}"
                 },
                 "EmergencyContact": {
                     "FaxNumber": "",
                     "CellPhoneNumber": "",
-                    "PhoneNumber": "3435582001",#payload.shipper.phone_number,
+                    "PhoneNumber": payload.shipper.phone_number,
                     "PhoneNumberExtension": "",
                     "ContactName": payload.shipper.person_name,
                     "Email": payload.shipper.email
@@ -100,7 +95,7 @@ def shipment_request(
                     "Address2": payload.recipient.address_line2,
                     "PostalCode": payload.recipient.postal_code,
                     "City": payload.recipient.city,
-                    "ProvinceCode": "CA_QC" #payload.recipient.state_code
+                    "ProvinceCode": f"{payload.recipient.country_code}_{payload.recipient.state_code}"
                 },
                 "IsInvoicee": False
             },
@@ -117,7 +112,7 @@ def shipment_request(
                         "Unit": "Pound" if freight.weight_unit == "LB" else "Kilogram"
                     },
                     "Unit": "Pallets", #freight.packaging_type,
-                    "Quantity": 1,
+                    "Quantity": len(payload.parcels),  #1,
                     "PurchaseOrderNumbers": []
                 }
                 for freight in payload.parcels
@@ -145,18 +140,18 @@ def shipment_request(
                 "Value": code
             }
         ],
+
         "ThirdPartyInvoicee": {
-            "Name": "RADIANT GLOBAL LOGISTICS (CANADA) INC.",
+            "Name":  payload.billing_address.company_name if payload.billing_address else payload.shipper.company_name ,
             "Address": {
-                "Address1": "1280 COURTNEYPARK DR E.",
-                "Address2": "",
-                "PostalCode": "L5T1N6",
-                "City": "MISSISSAUGA",
-                "ProvinceCode": "CA_ON" # a dynamiser absolument
+               "Address1": payload.billing_address.address_line1 if payload.billing_address else payload.shipper.address_line1,
+                "Address2": payload.billing_address.address_line2 if payload.billing_address else payload.shipper.address_line2,
+                "PostalCode": payload.billing_address.postal_code if payload.billing_address else payload.shipper.postal_code,
+                "City": payload.billing_address.city if payload.billing_address else payload.shipper.city,
+                "ProvinceCode": f"{payload.billing_address.country_code}_{payload.billing_address.state_code}" if payload.billing_address else f"{payload.shipper.country_code}_{payload.shipper.state_code}"
             }
         }
-        , "EmergencyContact": {
-        },
+        , "EmergencyContact": {},
         "IsInvoicee": True
     }
 

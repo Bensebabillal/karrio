@@ -1,15 +1,12 @@
 import datetime
-
 import jstruct
 import karrio.core as core
 import karrio.lib as lib
 import datetime
 import karrio.providers.morneau.units as units
-
 import secrets
 import string
 from enum import Enum
-
 
 
 class Settings(core.Settings):
@@ -57,50 +54,6 @@ class Settings(core.Settings):
             self.config or {},
             option_type=ConnectionConfig,
         )
-
-    def _retrieve_jwt_token_old(self, url: str, service: units.ServiceType) -> str:
-        """Retrieve JWT token from the given URL."""
-        cache_key = "auth_token"
-        now = datetime.datetime.now()
-
-        # Check if a cached token exists and is still valid
-        cached = self.cache.get(cache_key) or {}
-        if cached and cached.get('expiry') > now:
-            return cached.get('token')
-
-        if service == units.ServiceType.rates_service:
-
-            # Perform the authentication request
-            response = lib.request(
-                url=f"{url}/auth/login",
-                data=f"Username={self.username}&Password={self.password}",
-                method="POST",
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-            )
-
-            expires_in_seconds: int = 600
-
-        else:
-            # Perform the authentication request
-            response = lib.request(
-                url=f"{url}/api/auth/Token",
-                # this need to be wrapped in lib.json "{"Username": self.username, "Password": self.password}"
-                data=lib.to_json({"UserName": self.username, "Password": self.password}),
-                method="POST",
-                headers={"Content-Type": "application/json"},
-            )
-            expires_in_seconds: int = 3600
-
-        # Parse the response and extract the token and expiry time
-        token_data = lib.to_dict(response)
-        token = token_data.get("AccessToken")
-
-        expiry_time = now + datetime.timedelta(seconds=expires_in_seconds)
-
-        # Cache the token and its expiry time
-        self.cache.set(cache_key, {"token": token, "expiry": expiry_time})
-
-        return token
 
     def _retrieve_jwt_token(self, url: str, service: units.ServiceType) -> str:
         """Retrieve JWT token from the given URL."""
@@ -194,7 +147,6 @@ class Settings(core.Settings):
     # Function to get selected commodities based on provided options
     def get_selected_commodities(self, option):
         selected_commodities = []  # Initialize an empty list to hold selected commodities
-       # Iterate over each shipping option defined in ShippingOption
         for shipping_option in units.ShippingOption:
             # Access the value of the option which is an instance of OptionEnum
             option_enum = shipping_option.value
@@ -203,4 +155,19 @@ class Settings(core.Settings):
                 # If the option is selected, add the code from OptionEnum to the list of selected commodities
                 selected_commodities.append({"Code": option_enum.code})
 
+        return selected_commodities  # Return the list of selected commodities
+
+
+    def get_selected_commodities_for_cotations(self, option):
+        selected_commodities = []  # Initialize an empty list to hold selected commodities
+
+        # Iterate over each shipping option defined in ShippingOption
+        for shipping_option in units.ShippingOption:
+            option_enum = shipping_option.value
+
+            # Check if the current option is in the provided options dictionary and its value is True
+            if option.get(shipping_option.name, False):
+                # If the option is selected and it is a cotation-specific option, add the code from OptionEnum to the list of selected commodities
+                if option_enum.code in units.COTATION_OPTION_CODES:
+                    selected_commodities.append(option_enum.code)
         return selected_commodities  # Return the list of selected commodities

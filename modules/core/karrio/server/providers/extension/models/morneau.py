@@ -1,7 +1,6 @@
 from django.db import models
 from karrio.server.providers.models.carrier import Carrier
 
-
 class MorneauSettings(Carrier):
     CARRIER_NAME = "morneau"
 

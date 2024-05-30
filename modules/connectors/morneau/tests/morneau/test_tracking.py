@@ -44,7 +44,6 @@ class TestGroupeMorneauTracking(unittest.TestCase):
             parsed_response = (
                 karrio.Tracking.fetch(self.TrackingRequest).from_(gateway).parse()
             )
-
             self.assertListEqual(
                 lib.to_dict(parsed_response), ParsedErrorResponse
             )

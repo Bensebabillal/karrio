@@ -17,19 +17,33 @@ class ShippingService(lib.Enum):
 class ShippingOption(lib.Enum):
     """ Carrier specific options """
     morneau_dangerous_good = lib.OptionEnum("DangerousGood", bool) # DangerousGood : dangerous goods are shipped
-    morneau_heat = lib.OptionEnum("Heat", bool)  # Heat : Heating service
-    morneau_tail_gate = lib.OptionEnum("Tailgate", bool) # Tailgate : a tail gate need to be lifted
-    morneau_straigth_body_truck = lib.OptionEnum("StraigthBodyTruck", bool)  # StraigthBodyTruck : straight body truck needed
-    morneau_barn_doors = lib.OptionEnum("BarnDoors", bool)  # BarnDoors : Pickup barn doors
-    morneau_frozen = lib.OptionEnum("Frozen", bool) # Frozen : goods that need to be kept frozen are shipped
-    morneau_fresh = lib.OptionEnum("Fresh", bool) # Fresh : goods that need to be kept freesh are shipped
-    morneau_dry = lib.OptionEnum("Dry", bool) # Dry service
-    morneau_flatbed = lib.OptionEnum("Flatbed", bool) # Flatbed : flat bed service
-    morneau_pup_trailer = lib.OptionEnum("PupTrailer", bool) # PupTrailer : pup trailer needed
-    morneau_food=lib.OptionEnum("Food", bool)  # Food : foods are shipped (special handling on our side)
-
+    heat = lib.OptionEnum("Heat", bool)  # Heat : Heating service
+    tail_gate = lib.OptionEnum("Tailgate", bool) # Tailgate : a tail gate need to be lifted
+    straigth_body_truck = lib.OptionEnum("StraigthBodyTruck", bool)  # StraigthBodyTruck : straight body truck needed
+    barn_doors = lib.OptionEnum("BarnDoors", bool)  # BarnDoors : Pickup barn doors
+    frozen = lib.OptionEnum("Frozen", bool) # Frozen : goods that need to be kept frozen are shipped
+    fresh = lib.OptionEnum("Fresh", bool) # Fresh : goods that need to be kept freesh are shipped
+    dry = lib.OptionEnum("Dry", bool) # Dry service
+    flatbed = lib.OptionEnum("Flatbed", bool) # Flatbed : flat bed service
+    pup_trailer = lib.OptionEnum("PupTrailer", bool) # PupTrailer : pup trailer needed
+    food=lib.OptionEnum("Food", bool)  # Food : foods are shipped (special handling on our side)
     #mapping
     dangerous_good = morneau_dangerous_good# DangerousGood : dangerous goods are shipped
+    #commodities for cotations
+    chauffage_requis = lib.OptionEnum("CHAU", bool)
+    congele = lib.OptionEnum("CONGELE", bool)
+    chargement_flat_bed = flatbed
+    home= lib.OptionEnum("HOME", bool)
+    livraison_interne  = lib.OptionEnum("LIVRINTER", bool)
+    cueillette_camion_porteur = lib.OptionEnum("PCAMCUEIL", bool)
+    lvraison_camion_porteur = lib.OptionEnum("PCAMLIVR", bool)
+    cueil_porte_de_grange = lib.OptionEnum("PORTEGRANG", bool)
+    pup_pour_cueillette = lib.OptionEnum("PUPCUEIL", bool)
+    pup_pour_livraison = lib.OptionEnum("PUPLIVR", bool)
+    hayon_cueillette = lib.OptionEnum("TAILCUEIL", bool)
+    hayon_livraison = lib.OptionEnum("TAILCUEIL", bool)
+
+
 
     """ Unified Option type mapping """
     # insurance = morneau_coverage  #  maps unified karrio option to carrier specific
@@ -86,13 +100,11 @@ class TrackingStatus(lib.Enum):
     out_for_delivery = ["out_for_delivery"]
     ready_for_pickup = ["ready_for_pickup"]
 
-
 class ServiceType(lib.Enum):
     """ Carrier specific service types """
     tracking_service = ["tracking_service"]
     shipping_service = ["shipping_service"]
     rates_service = ["rates_service"]
-
 
 class CommodityType(lib.Enum):
     """ Carrier specific Commodities types """
@@ -100,10 +112,16 @@ class CommodityType(lib.Enum):
     pcamlivr = ["PCAMLIVR"]
     home = ["HOME"]
 
-
-
 CUSTOM_OPTIONS = [
+
     #ShippingOption.caller_id.name,
     #ShippingOption.division.name,
 
 ]
+
+COTATION_OPTION_CODES = [
+   "CHAU", "CONGELE", "Flatbed", "HOME", "LIVRINTER",
+    "PCAMCUEIL", "PCAMLIVR", "PORTEGRANG",
+    "PUPCUEIL", "PUPLIVR", "TAILCUEIL", "TAILLIVR"
+]
+

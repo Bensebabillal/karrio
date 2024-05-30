@@ -1,19 +1,18 @@
 """Karrio Groupe Morneau client proxy."""
-from copyreg import constructor
+from threading import Lock
 import typing
 import karrio.providers.morneau.error as provider_error
 import karrio.api.proxy as proxy
 import karrio.lib as lib
+import ast
 import karrio.mappers.morneau.settings as provider_settings
-import requests  # Ensure you have this imported if lib.request is not abstracting requests
-
-
+import requests
 from threading import Thread
 from karrio.providers.morneau.shipment.polling_service import poll_tender_status
 
-
 class Proxy(proxy.Proxy):
     settings: provider_settings.Settings
+    lock: Lock = Lock()
     def get_rates(self, request: lib.Serializable) -> lib.Deserializable[str]:
         # Send request for quotation
         response = lib.request(
@@ -26,11 +25,11 @@ class Proxy(proxy.Proxy):
                 "Content-Type": "application/json",
             },
         )
-        print(response)
         return lib.Deserializable(response, lib.to_dict)
 
     def create_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
         shipment_request_data = request.serialize()
+
         try:
             # Send the POST request
             response = lib.request(
@@ -56,12 +55,12 @@ class Proxy(proxy.Proxy):
             #poll_tender_status.schedule(args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token), delay=120)
 
             # Create and start a thread for polling the tender status
-            poll_thread = Thread(
+            poll_thread = Thread( # 00108355,00109766
                 target=poll_tender_status,
-                args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token)
+                args=(FreightBillNumber, self.settings, self.cancel_shipment_threadsafe, self.lock)
             )
-           # poll_thread.start()
 
+            poll_thread.start()
             simulated_response = {
                 "ShipmentIdentifier": shipment_request_data.get("ShipmentIdentifier"),
                 "LoadTenderConfirmations": [
@@ -81,12 +80,13 @@ class Proxy(proxy.Proxy):
             #print(f"Error processing the shipment request: {error_message}")
             raise Exception(f"Failed to create shipment: {response}")
 
-
     def cancel_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
         payload = request.serialize()
+        print("je passe ici")
+        shipment_identifier = ast.literal_eval(payload['reference'])['Number']
         response = lib.request(
-            url=f"{self.settings.server_url}/LoadTender/{self.settings.caller_id}/{payload['reference']}/cancel",
-            method="GET",
+            url=f"{self.settings.server_url}/LoadTender/{self.settings.caller_id}/{shipment_identifier}/cancel",
+            method="POST",
             headers={
                 "Accept": "application/json",
                 "X-API-VERSION": "1",
@@ -94,7 +94,6 @@ class Proxy(proxy.Proxy):
             },
             on_error=provider_error.parse_http_response,
         )
-
         return lib.Deserializable(response if any(response) else "{}", lib.to_dict)
 
     def get_tracking(self, request: lib.Serializable) -> lib.Deserializable[str]:
@@ -123,3 +122,18 @@ class Proxy(proxy.Proxy):
                 if any(track.strip())
             ],
         )
+
+    def _cancel_shipment_internal(self, shipment_identifier: str):
+            try:
+                response = self.cancel_shipment(lib.Serializable({'reference': f"{{'Number': '{shipment_identifier}'}}"}))
+                if response:
+                    print(f"Response of cancel request: {response}")
+                    print(f"Shipment {shipment_identifier} canceled successfully.")
+                else:
+                    print(f"Failed to cancel shipment {shipment_identifier}.")
+            except Exception as e:
+                print(f"Error during shipment cancellation: {e}")
+
+    def cancel_shipment_threadsafe(self, request: lib.Serializable) -> lib.Deserializable[str]:
+            with self.lock:
+                return self.cancel_shipment(request)

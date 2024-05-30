@@ -70,13 +70,7 @@ def rate_request(
             "NbPallet": len(packages),  # Assuming one parcel per pallet
             "Weight": float(sum(package.weight.value for package in packages)),
             "WeightUnit": payload.parcels[0].weight_unit,
-            # "Commodities": [{
-            #     "Piece": 1,
-            #     "Length": float(package.length.value),
-            #     "Width": float(package.width.value),
-            #     "Height": float(package.height.value)
-            # } for package in packages],
-            "Commodities": ['RENDEZVOUS', 'PCAMLIVR', 'HOME'],
+            "Commodities": settings.get_selected_commodities_for_cotations(payload.options),
             "Dimensions": [{
                 "Piece": 1,
                 "Length": float(package.length.value),

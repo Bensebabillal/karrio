@@ -55,6 +55,7 @@ def shipment_request(
     settings: provider_utils.Settings,
 ) -> lib.Serializable:
     _commodities = settings.get_selected_commodities(payload.options)
+
     code = settings._generate_unique_id("GoL", 15)
     # Construct the Loads
     loads = [
@@ -131,8 +132,7 @@ def shipment_request(
         "Notes": "",
         "ShipmentIdentifier": {
             "Type": "ProBill",
-            "Number": code
-,
+            "Number": code,
         },
         "References": [
             {

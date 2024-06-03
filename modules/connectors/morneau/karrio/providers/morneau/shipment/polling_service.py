@@ -19,7 +19,7 @@ def poll_tender_status(FreightBillNumber, settings, cancel_callback, lock):
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             if len(response.content) == 0:
-                print(f"waiting Morneau approval: {response.content} and shipment id: {shp_id}")
+                print(f"waiting Morneau approval: {response.content}")
                 # for simmulation
                     #shp_id = settings.get_shipment_id(FreightBillNumber)
                     #request = lib.Serializable({'reference': f"{{'Number': '{FreightBillNumber}'}}"})

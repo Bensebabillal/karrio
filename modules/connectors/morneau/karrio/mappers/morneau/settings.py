@@ -1,9 +1,13 @@
 """Karrio Groupe Morneau client settings."""
-
 import attr
 import jstruct
 import karrio.lib as lib
+import os
 from karrio.providers.morneau.utils import Settings as BaseSettings
+from decouple import Config, RepositoryEnv
+# Load environment variables from the .env file in the root of morneau directory
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
+env_config = Config(RepositoryEnv(env_path))
 
 @attr.s(auto_attribs=True)
 class Settings(BaseSettings):
@@ -23,6 +27,5 @@ class Settings(BaseSettings):
     metadata: dict = {}
     id: str = None
     config: dict = {}
-
-    test_username: str ="dev.imprimerieGauvin"
-    test_password: str ="SFmFLAeKpx7K3WXoeJOCDhC74Y6TrvhE"
+    test_username: str = env_config("TEST_USERNAME")
+    test_password: str = env_config("TEST_PASSWORD")

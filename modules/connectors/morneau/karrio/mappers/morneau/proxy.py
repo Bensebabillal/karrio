@@ -6,7 +6,6 @@ import karrio.api.proxy as proxy
 import karrio.lib as lib
 import ast
 import karrio.mappers.morneau.settings as provider_settings
-import requests
 from threading import Thread
 from karrio.providers.morneau.shipment.polling_service import poll_tender_status
 
@@ -29,7 +28,6 @@ class Proxy(proxy.Proxy):
 
     def create_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
         shipment_request_data = request.serialize()
-
         try:
             # Send the POST request
             response = lib.request(
@@ -53,14 +51,17 @@ class Proxy(proxy.Proxy):
         if len(response) == 0:
             FreightBillNumber=shipment_request_data.get("ShipmentIdentifier", {}).get("Number")
             #poll_tender_status.schedule(args=(FreightBillNumber, self.settings.server_url, self.settings.caller_id, self.settings.shipment_jwt_token), delay=120)
+            try:
+                karrio_shipment_id = self.settings.get_shipment_id( FreightBillNumber )
+                 # Create and start a thread for polling the tender status
+                poll_thread = Thread( # 00108355,00109766
+                    target=poll_tender_status,
+                    args=(FreightBillNumber, self.settings, self.cancel_shipment_threadsafe, self.lock)
+                )
+                poll_thread.start()
+            except Exception as e:
+                print(f"Error: {e}")
 
-            # Create and start a thread for polling the tender status
-            poll_thread = Thread( # 00108355,00109766
-                target=poll_tender_status,
-                args=(FreightBillNumber, self.settings, self.cancel_shipment_threadsafe, self.lock)
-            )
-
-            poll_thread.start()
             simulated_response = {
                 "ShipmentIdentifier": shipment_request_data.get("ShipmentIdentifier"),
                 "LoadTenderConfirmations": [
@@ -82,7 +83,6 @@ class Proxy(proxy.Proxy):
 
     def cancel_shipment(self, request: lib.Serializable) -> lib.Deserializable[str]:
         payload = request.serialize()
-        print("je passe ici")
         shipment_identifier = ast.literal_eval(payload['reference'])['Number']
         response = lib.request(
             url=f"{self.settings.server_url}/LoadTender/{self.settings.caller_id}/{shipment_identifier}/cancel",
@@ -123,17 +123,12 @@ class Proxy(proxy.Proxy):
             ],
         )
 
-    def _cancel_shipment_internal(self, shipment_identifier: str):
-            try:
-                response = self.cancel_shipment(lib.Serializable({'reference': f"{{'Number': '{shipment_identifier}'}}"}))
-                if response:
-                    print(f"Response of cancel request: {response}")
-                    print(f"Shipment {shipment_identifier} canceled successfully.")
-                else:
-                    print(f"Failed to cancel shipment {shipment_identifier}.")
-            except Exception as e:
-                print(f"Error during shipment cancellation: {e}")
-
-    def cancel_shipment_threadsafe(self, request: lib.Serializable) -> lib.Deserializable[str]:
+    def cancel_shipment_threadsafe(self, request: lib.Serializable, shipment_id:str) -> lib.Deserializable[str]:
+            print("call of cancel shipment")
             with self.lock:
-                return self.cancel_shipment(request)
+                response = self.cancel_shipment(request)
+                if response:
+                    self.settings.cancel_shipment_in_karrio(shipment_id)
+                    return lib.Deserializable({"status": "success"}, lib.to_dict)
+                else:
+                    return lib.Deserializable({"status": "failed"}, lib.to_dict)

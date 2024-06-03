@@ -5,7 +5,6 @@ import karrio.lib as lib
 import karrio.providers.morneau.error as error
 import karrio.providers.morneau.utils as provider_utils
 
-
 def parse_shipment_cancel_response(
     response: lib.Deserializable[dict],
     settings: provider_utils.Settings,

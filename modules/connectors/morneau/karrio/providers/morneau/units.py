@@ -80,14 +80,6 @@ def shipping_options_initializer(
 
     def items_filter(key: str) -> bool:
           return key in ShippingOption  # type: ignore
-
-     # Define carrier option filter.
-    # def items_filter(key: str) -> bool:
-    #      return key in ShippingOption and key not in CUSTOM_OPTIONS  # type:ignore
-
-    # return units.ShippingOptions(
-    #      _options, ShippingOption, items_filter=items_filter)
-
     return units.ShippingOptions(options, ShippingOption, items_filter=items_filter)
 
 
@@ -111,13 +103,6 @@ class CommodityType(lib.Enum):
     rendezvous = ["RENDEZVOUS"]
     pcamlivr = ["PCAMLIVR"]
     home = ["HOME"]
-
-CUSTOM_OPTIONS = [
-
-    #ShippingOption.caller_id.name,
-    #ShippingOption.division.name,
-
-]
 
 COTATION_OPTION_CODES = [
    "CHAU", "CONGELE", "Flatbed", "HOME", "LIVRINTER",

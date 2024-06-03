@@ -129,3 +129,4 @@ apps/api/karrio/server/staticfiles/*
 .karrio/
 packages/karriojs/api/generated
 !docker/.env
+modules/connectors/morneau/.env

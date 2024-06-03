@@ -12,7 +12,6 @@ def parse_shipment_response(
     settings: provider_utils.Settings,
 ) -> typing.Tuple[models.ShipmentDetails, typing.List[models.Message]]:
     response_dict = response.deserialize()
-
     errors = provider_error.parse_error_response(response_dict, settings)
     shipment = _extract_details(response_dict, settings) if "error" not in response_dict else None
 
@@ -24,22 +23,17 @@ def _extract_details(
 ) -> models.ShipmentDetails:
     shipment = lib.to_object(shipping.ShipmentPurchaseResponseType, data)
     shipment_identifier = shipment.ShipmentIdentifier
-
     # Assuming the first LoadTenderConfirmation contains the primary details
     load_tender_confirmation = shipment.LoadTenderConfirmations[0]
-
     freight_bill_number = load_tender_confirmation.FreightBillNumber
     status = load_tender_confirmation.Status
     is_accepted = load_tender_confirmation.IsAccepted
-
     label = "PDF", # Placeholder: replace with actual label extraction logic if applicable
     tracking_number = freight_bill_number  # Assuming the FreightBillNumber is used as the tracking number
-
     meta = {
         "status": status,
         "is_accepted": is_accepted
     }
-
     return models.ShipmentDetails(
         carrier_id=settings.carrier_id,
         carrier_name=settings.carrier_name,
@@ -55,7 +49,6 @@ def shipment_request(
     settings: provider_utils.Settings,
 ) -> lib.Serializable:
     _commodities = settings.get_selected_commodities(payload.options)
-
     code = settings._generate_unique_id("GoL", 15)
     # Construct the Loads
     loads = [
@@ -84,7 +77,6 @@ def shipment_request(
         }
         for parcel in payload.parcels
     ]
-
     # Construct the Unloads
     unloads = [
         {
@@ -121,7 +113,6 @@ def shipment_request(
         }
 
     ]
-
     # Construct the LoadTender payload
     load_tender_payload = {
         "ServiceLevel": payload.service,

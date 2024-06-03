@@ -4,7 +4,6 @@ from requests.exceptions import RequestException
 from threading import Lock
 import karrio.lib as lib
 
-
 def poll_tender_status(FreightBillNumber, settings, cancel_callback, lock):
     url = f"{settings.server_url}/LoadTender/{settings.caller_id}/{FreightBillNumber}/status"
     while True:
@@ -20,11 +19,13 @@ def poll_tender_status(FreightBillNumber, settings, cancel_callback, lock):
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             if len(response.content) == 0:
-                print(f"waiting Morneau approval: {response.content}")
-                request = lib.Serializable({'reference': f"{{'Number': '{FreightBillNumber}'}}"})
-                cancel_callback(request)
-                #continue
-                break
+                print(f"waiting Morneau approval: {response.content} and shipment id: {shp_id}")
+                # for simmulation
+                    #shp_id = settings.get_shipment_id(FreightBillNumber)
+                    #request = lib.Serializable({'reference': f"{{'Number': '{FreightBillNumber}'}}"})
+                    #cancel_callback(request, shp_id )
+                    #break
+                continue
             status_data = response.json()
             print(f"Polled status: {status_data}")
             load_tender_confirmations = status_data.get("LoadTenderConfirmations", [])
@@ -32,15 +33,14 @@ def poll_tender_status(FreightBillNumber, settings, cancel_callback, lock):
                 confirmation = load_tender_confirmations[0]
                 if confirmation.get("IsAccepted"):
                     print("Tender accepted.")
-                    # shipment_request_data
-                    # shipment_request_data.get("ShipmentIdentifier", {}).get("Number")
-                    # request = lib.Serializable({'reference': f"{{'Number': '{tmp}'}}"})
-                    # cancel_callback(request)
                     break
                 elif confirmation.get("Status") is not None:
                     print(f"Tender status: {confirmation.get('Status')}. Ending poll.")
                     if confirmation.get('Status') == 'NEW' and not confirmation.get("IsAccepted"):
                         cancel_callback(FreightBillNumber)
+                        shp_id = settings.get_shipment_id(FreightBillNumber)
+                        request = lib.Serializable({'reference': f"{{'Number': '{FreightBillNumber}'}}"})
+                        cancel_callback(request, shp_id )
                     break
         except RequestException as e:
             print(f"Failed to poll status: {e}")

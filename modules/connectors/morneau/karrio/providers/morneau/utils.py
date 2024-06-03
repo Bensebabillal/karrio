@@ -1,4 +1,5 @@
 import datetime
+from urllib import request
 import jstruct
 import karrio.core as core
 import karrio.lib as lib
@@ -7,7 +8,10 @@ import karrio.providers.morneau.units as units
 import secrets
 import string
 from enum import Enum
-
+from django.http import HttpRequest
+import os
+import requests
+from decouple import Config, RepositoryEnv
 
 class Settings(core.Settings):
     """Groupe Morneau connection settings."""
@@ -17,6 +21,13 @@ class Settings(core.Settings):
     cache: lib.Cache = jstruct.JStruct[lib.Cache, False, dict(default=lib.Cache())]
     billed_id: int
     division: str = "Morneau"
+
+    # Load environment variables from the .env file in the root of morneau directory
+    env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
+    env_config = Config(RepositoryEnv(env_path))
+    KARRIO_PUBLIC_URL = env_config("KARRIO_PUBLIC_URL")
+    PORT=env_config("PORT")
+    API_KEY=env_config("API_KEY")
 
     @property
     def carrier_name(self):
@@ -157,7 +168,6 @@ class Settings(core.Settings):
 
         return selected_commodities  # Return the list of selected commodities
 
-
     def get_selected_commodities_for_cotations(self, option):
         selected_commodities = []  # Initialize an empty list to hold selected commodities
 
@@ -171,3 +181,57 @@ class Settings(core.Settings):
                 if option_enum.code in units.COTATION_OPTION_CODES:
                     selected_commodities.append(option_enum.code)
         return selected_commodities  # Return the list of selected commodities
+
+    def get_shipment_id(self, tracking_number: str) -> str:
+            url = f"{self.KARRIO_PUBLIC_URL}:{self.PORT}/v1/shipments"
+            headers = {
+                'Authorization': f'Token {self.API_KEY}',
+                'Content-Type': 'application/json'            }
+            params = {
+                'tracking_number': tracking_number
+            }
+
+            try:
+                response = requests.get(
+                    url=url,
+                    headers=headers,
+                    params=params,
+                )
+                response.raise_for_status()  # Will raise an HTTPError for bad responses
+
+                # Assuming the response contains a JSON object with the 'id' field
+                shipment_data = response.json()
+                print(f"RESULT: {shipment_data}")
+                shipment_id = shipment_data.get('results')[0].get('id')
+                if shipment_id:
+                    return shipment_id
+                else:
+                    raise ValueError("Shipment ID not found in the response")
+
+            except requests.exceptions.HTTPError as http_err:
+                print(f"HTTP error occurred: {http_err}")
+            except Exception as err:
+                print(f"Other error occurred: {err}")
+
+    def cancel_shipment_in_karrio(self, shipment_id: str) -> None:
+            url = f"{self.KARRIO_PUBLIC_URL}:{self.PORT}/v1/shipments/{shipment_id}/cancel"
+            headers = {
+                'Authorization': f'Token {self.API_KEY}',
+                'Accept': 'application/json'
+            }
+            try:
+                # Make the POST request
+                response = requests.post(
+                    url=url,
+                    headers=headers,
+                )
+                response.raise_for_status()  # Raise an HTTPError for bad responses
+
+                print(f"Shipment {shipment_id} has been successfully cancelled.")
+
+            except requests.exceptions.HTTPError as http_err:
+                print(f"HTTP error occurred: {http_err}")
+                raise
+            except Exception as err:
+                print(f"Other error occurred: {err}")
+                raise

@@ -7,7 +7,6 @@ import karrio.lib as lib
 import karrio.core.errors as errors
 import karrio.core.settings as settings
 
-
 @attr.s(auto_attribs=True)
 class Proxy(abc.ABC):
     """Unified Shipping API Proxy (Interface)"""

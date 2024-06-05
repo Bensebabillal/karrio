@@ -17,7 +17,6 @@ class TestGroupeMorneauRating(unittest.TestCase):
         request = gateway.mapper.create_rate_request(self.RateRequest)
         self.assertEqual(request.serialize(), RateRequest)
 
-
     def test_get_rate(self):
         with patch("karrio.mappers.morneau.proxy.lib.request") as mock:
             mock.return_value = "{}"

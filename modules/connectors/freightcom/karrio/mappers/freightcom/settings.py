@@ -7,7 +7,6 @@ from karrio.providers.freightcom.utils import Settings as BaseSettings
 @attr.s(auto_attribs=True)
 class Settings(BaseSettings):
     """Freightcom connection settings."""
-
     username: str
     password: str
 

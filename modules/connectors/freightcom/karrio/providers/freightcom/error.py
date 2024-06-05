@@ -9,7 +9,6 @@ from karrio.providers.freightcom.utils import Settings
 def parse_error_response(response: Element, settings: Settings) -> List[Message]:
     errors = XP.find("Error", response, ErrorType)
     carrier_errors = XP.find("CarrierErrorMessage", response, CarrierErrorMessageType)
-
     return [
         *[_extract_error(er, settings) for er in errors if er.Message != ""],
         *[

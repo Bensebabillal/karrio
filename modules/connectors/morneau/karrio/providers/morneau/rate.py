@@ -47,7 +47,7 @@ def _extract_details(
         total_charge=total_charge,
         currency=currency,
         transit_days=transit_days,
-
+        
     )
     print(rate_details)
     return rate_details

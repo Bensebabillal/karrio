@@ -9,52 +9,87 @@ import karrio.providers.freightcomv2.units as provider_units
 
 
 def parse_tracking_response(
-    _response: lib.Deserializable[typing.List[typing.Tuple[str, dict]]],
+    _response: lib.Deserializable[typing.Tuple[str, dict]],
     settings: provider_utils.Settings,
 ) -> typing.Tuple[typing.List[models.TrackingDetails], typing.List[models.Message]]:
-    responses = _response.deserialize()
+    shipment_id, response = _response.deserialize()
 
-    messages = sum(
-        [
-            error.parse_error_response(response, settings, tracking_number=_)
-            for _, response in responses
-        ],
-        start=[],
-    )
-    tracking_details = [_extract_details(details, settings) for _, details in responses]
+    messages = error.parse_error_response(response, settings)
+    tracking_details = _extract_details(response, settings, shipment_id)
 
-    return tracking_details, messages
-
+    return [tracking_details], messages
 
 def _extract_details(
     data: dict,
     settings: provider_utils.Settings,
+    tracking_number: str,
 ) -> models.TrackingDetails:
-    tracking = None  # parse carrier tracking object type
+    events = data.get("events", [])
 
     return models.TrackingDetails(
         carrier_id=settings.carrier_id,
         carrier_name=settings.carrier_name,
-        tracking_number="",  # extract tracking number from tracking
+        tracking_number=tracking_number,
         events=[
             models.TrackingEvent(
-                date=lib.fdate(""), # extract tracking event date
-                description="",  # extract tracking event description or code
-                code="",  # extract tracking event code
-                time=lib.ftime(""), # extract tracking event time
-                location="",  # extract tracking event address
+                date=lib.fdate(event["when"], "%Y-%m-%dT%H:%M:%S"),
+                description=event.get("message", ""),
+                code=event.get("type", ""),
+                time=lib.ftime(event["when"], "%Y-%m-%dT%H:%M:%S"),
+                location=", ".join(filter(None, [
+                    event["where"].get("city"),
+                    event["where"].get("region"),
+                    event["where"].get("country")
+                ])),
             )
-            for event in []  # extract tracking events
+            for event in events
         ],
-        estimated_delivery=lib.fdate(""), # extract tracking estimated date if provided
-        delivered=False,  # compute tracking delivered status
+        estimated_delivery=None,
+        delivered=any(event["type"] == "delivered" for event in events),
     )
-
 
 def tracking_request(
     payload: models.TrackingRequest,
     settings: provider_utils.Settings,
 ) -> lib.Serializable:
-    request = None  # map data to convert karrio model to freightcomv2 specific type
+    request = {
+        "shipment_id": payload.shipment_id
+    }
 
     return lib.Serializable(request)
+
+
+# def parse_tracking_response(
+#     _response: lib.Deserializable[typing.List[typing.Tuple[str, dict]]],
+#     settings: provider_utils.Settings,
+# ) -> typing.Tuple[typing.List[models.TrackingDetails], typing.List[models.Message]]:
+#     responses = _response.deserialize()
+
+#     messages = sum(
+#         [
+#             error.parse_error_response(response, settings, tracking_number=_)
+#             for _, response in responses
+#         ],
+#         start=[],
+#     )
+#     tracking_details = [_extract_details(details, settings) for _, details in responses]
+
+#     return tracking_details, messages
+
+
+# def parse_tracking_response(
+#     _response: lib.Deserializable[typing.List[typing.Tuple[str, dict]]],
+#     settings: provider_utils.Settings,
+# ) -> typing.Tuple[typing.List[models.TrackingDetails], typing.List[models.Message]]:
+#     responses = _response.deserialize()
+
+#     messages = sum(
+#         [
+#             error.parse_error_response(response, settings, tracking_number=_)
+#             for _, response in responses
+#         ],
+#         start=[],
+#     )
+#     tracking_details = [_extract_details(details, settings, tracking_number) for tracking_number, details in responses]
+
+#     return tracking_details, messages

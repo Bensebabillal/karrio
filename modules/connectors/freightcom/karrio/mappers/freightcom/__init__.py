@@ -5,7 +5,6 @@ from karrio.mappers.freightcom.proxy import Proxy
 from karrio.mappers.freightcom.settings import Settings
 import karrio.providers.freightcom.units as units
 
-
 METADATA = Metadata(
     id="freightcom",
     label="Freightcom",

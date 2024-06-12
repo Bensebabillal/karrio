@@ -10,10 +10,14 @@ import karrio.providers.freightcomv2.units as units
 METADATA = Metadata(
     id="freightcomv2",
     label="freightcom v2",
+    is_hub=True,
     # Integrations
     Mapper=Mapper,
     Proxy=Proxy,
     Settings=Settings,
     # Data Units
-    is_hub=False
+    options=units.ShippingOption,
+    services=units.ShippingService,
+    hub_carriers=units.CARRIER_IDS,
 )
+

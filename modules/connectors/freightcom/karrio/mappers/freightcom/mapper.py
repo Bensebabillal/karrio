@@ -20,12 +20,10 @@ from karrio.providers.freightcom import (
     parse_shipment_cancel_reply,
 )
 
-
 class Mapper(BaseMapper):
     settings: Settings
 
     # Request Mappers
-
     def create_rate_request(self, payload: RateRequest) -> Serializable:
         return quote_request(payload, self.settings)
 
@@ -38,7 +36,6 @@ class Mapper(BaseMapper):
         return shipment_cancel_request(payload, self.settings)
 
     # Response Parsers
-
     def parse_rate_response(
         self, response: Deserializable
     ) -> Tuple[List[RateDetails], List[Message]]:

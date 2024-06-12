@@ -681,9 +681,10 @@ paths:
           `amazon_shipping`, `aramex`, `asendia_us`, `australiapost`, `boxknight`,
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
-          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
-          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `freightcomv2`,
+          `generic`, `geodis`, `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`,
+          `roadie`, `royalmail`, `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`,
+          `zoom2u`'
       - in: query
         name: metadata_key
         schema:
@@ -730,9 +731,10 @@ paths:
           `amazon_shipping`, `aramex`, `asendia_us`, `australiapost`, `boxknight`,
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
-          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
-          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `freightcomv2`,
+          `generic`, `geodis`, `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`,
+          `roadie`, `royalmail`, `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`,
+          `zoom2u`'
         required: true
       tags:
       - Carriers
@@ -931,9 +933,10 @@ paths:
           `amazon_shipping`, `aramex`, `asendia_us`, `australiapost`, `boxknight`,
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
-          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
-          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `freightcomv2`,
+          `generic`, `geodis`, `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`,
+          `roadie`, `royalmail`, `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`,
+          `zoom2u`'
       - in: query
         name: created_after
         schema:
@@ -1801,6 +1804,7 @@ paths:
           - fedex
           - fedex_ws
           - freightcom
+          - freightcomv2
           - generic
           - geodis
           - laposte
@@ -1891,6 +1895,7 @@ paths:
           - fedex
           - fedex_ws
           - freightcom
+          - freightcomv2
           - generic
           - geodis
           - laposte
@@ -1981,6 +1986,7 @@ paths:
           - fedex
           - fedex_ws
           - freightcom
+          - freightcomv2
           - generic
           - geodis
           - laposte
@@ -2162,6 +2168,7 @@ paths:
           - fedex
           - fedex_ws
           - freightcom
+          - freightcomv2
           - generic
           - geodis
           - laposte
@@ -2428,9 +2435,10 @@ paths:
           `amazon_shipping`, `aramex`, `asendia_us`, `australiapost`, `boxknight`,
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
-          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
-          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `freightcomv2`,
+          `generic`, `geodis`, `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`,
+          `roadie`, `royalmail`, `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`,
+          `zoom2u`'
       - in: query
         name: created_after
         schema:
@@ -2856,9 +2864,10 @@ paths:
           `amazon_shipping`, `aramex`, `asendia_us`, `australiapost`, `boxknight`,
           `bpost`, `canadapost`, `canpar`, `chronopost`, `colissimo`, `dhl_express`,
           `dhl_parcel_de`, `dhl_poland`, `dhl_universal`, `dicom`, `dpd`, `dpdhl`,
-          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `generic`, `geodis`,
-          `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`, `roadie`, `royalmail`,
-          `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`, `zoom2u`'
+          `easypost`, `eshipper`, `fedex`, `fedex_ws`, `freightcom`, `freightcomv2`,
+          `generic`, `geodis`, `laposte`, `locate2u`, `morneau`, `nationex`, `purolator`,
+          `roadie`, `royalmail`, `sendle`, `tge`, `tnt`, `ups`, `usps`, `usps_international`,
+          `zoom2u`'
       - in: query
         name: created_after
         schema:
@@ -4285,6 +4294,7 @@ components:
           - fedex
           - fedex_ws
           - freightcom
+          - freightcomv2
           - generic
           - geodis
           - laposte
@@ -4302,7 +4312,7 @@ components:
           - usps_international
           - zoom2u
           type: string
-          x-spec-enum-id: 6a0878999fdaa356
+          x-spec-enum-id: 7b9f1c4bf2e61759
           description: Indicates a carrier (type)
         display_name:
           type: string
@@ -9592,6 +9602,7 @@ tags:
     | amazon_shipping | AmazonShipping |
     | allied_express_local | Allied Express Local |
     | allied_express | Allied Express |
+    | freightcomv2 | freightcom v2 |
 
     ---
     ## Services
@@ -10917,6 +10928,11 @@ tags:
     | allied_parcel_service | P |
     | allied_standard_pallet_service | PT |
     | allied_oversized_pallet_service | PT2 |
+
+    ### freightcom v2
+    | Code         | Service Name |
+    | ------------ | ------------ |
+    | freightcomv2_standard_service | freightcom v2 Standard Service |
 
 
     ---

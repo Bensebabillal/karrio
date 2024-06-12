@@ -57,3 +57,15 @@ class TrackingStatus(lib.Enum):
     delivery_delayed = ["delivery_delayed"]
     out_for_delivery = ["out_for_delivery"]
     ready_for_pickup = ["ready_for_pickup"]
+
+
+CARRIER_IDS = {
+    "34": "canpar",
+    "37": "dicom",
+    "40": "purolator",
+    "41": "fedex",
+    "52": "dhl",
+    "57": "dhl_ecommerce",
+    "63": "canadapost",
+    "46": "ups",
+}

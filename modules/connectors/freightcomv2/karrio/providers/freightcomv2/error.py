@@ -4,21 +4,29 @@ import karrio.lib as lib
 import karrio.core.models as models
 import karrio.providers.freightcomv2.utils as provider_utils
 
-
 def parse_error_response(
     response: dict,
     settings: provider_utils.Settings,
     **kwargs,
 ) -> typing.List[models.Message]:
-    errors = []  # compute the carrier error object list
+    errors = response.get("data", {})
+    message = response.get("message", "Unknown error")
 
     return [
         models.Message(
             carrier_id=settings.carrier_id,
             carrier_name=settings.carrier_name,
-            code="",
-            message="",
+            code=field,
+            message=description,
             details={**kwargs},
         )
-        for error in errors
+        for field, description in errors.items()
+    ] or [
+        models.Message(
+            carrier_id=settings.carrier_id,
+            carrier_name=settings.carrier_name,
+            code="unknown_error",
+            message=message,
+            details={**kwargs},
+        )
     ]

@@ -6280,8 +6280,6 @@ export interface MorneauSettingsInput {
   username: string;
   password: string;
   carrier_id: string;
-  id: string;
-
 }
 
 // null
